@@ -26,8 +26,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <div dir="rtl" lang="ar" className="min-h-screen bg-background font-sans antialiased selection:bg-primary/20 selection:text-primary">
-          <Toaster />
-          <Sonner position="top-center" richColors closeButton dir="rtl" />
+
           <BrowserRouter>
             <Layout>
               <Routes>

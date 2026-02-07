@@ -45,8 +45,7 @@ export type StageStatusValue =
 
 export const PROJECT_TYPES = {
   BUILDING_PERMIT: "رخصة بناء",
-  MODIFICATION: "تعديل رخصة",
-  ADDITION: "إضافة بناء",
+  MODIFICATION: "اضافة وتعديل",
   DEMOLITION: "هدم وترميم",
   SURVEY_REPORT: "تقرير مساحي",
 } as const;

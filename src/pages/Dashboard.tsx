@@ -32,6 +32,7 @@ const STAGE_COLORS = {
   not_started: "oklch(0.95 0.01 255)",
   in_progress: "oklch(0.52 0.14 255)",
   waiting: "oklch(0.72 0.15 65)",
+  paused: "oklch(0.63 0.26 29.23)",
   completed: "oklch(0.65 0.13 145)",
 };
 
@@ -39,6 +40,7 @@ const STAGE_LABELS: Record<string, string> = {
   not_started: "لم يبدأ",
   in_progress: "قيد التنفيذ",
   waiting: "بانتظار الإجراء",
+  paused: "متوقف مؤقت",
   completed: "مكتمل",
 };
 
@@ -62,7 +64,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 pb-10" dir="rtl">
       {/* Header Section */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={springPresets.gentle}
@@ -88,7 +90,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Stage Distribution Chart */}
-        <motion.div 
+        <motion.div
           variants={fadeInUp}
           initial="initial"
           animate="animate"
@@ -106,23 +108,23 @@ export default function Dashboard() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(0.88 0.02 255)" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={false} 
-                      tickLine={false} 
+                    <XAxis
+                      dataKey="name"
+                      axisLine={false}
+                      tickLine={false}
                       tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
                     />
-                    <YAxis 
-                      axisLine={false} 
-                      tickLine={false} 
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
                       tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
                       orientation="right"
                     />
-                    <Tooltip 
+                    <Tooltip
                       cursor={{ fill: 'oklch(0.95 0.01 255)' }}
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                     />
-                    <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={50}>
+                    <Bar dataKey="count" radius={[4, 4, 0, 0,]} barSize={50}>
                       {chartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={STAGE_COLORS[entry.status as keyof typeof STAGE_COLORS] || "var(--primary)"} />
                       ))}
@@ -130,13 +132,14 @@ export default function Dashboard() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
                 {Object.entries(STAGE_LABELS).map(([key, label]) => (
                   <div key={key} className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
+                    <div
+                      className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: STAGE_COLORS[key as keyof typeof STAGE_COLORS] }}
                     />
+
                     <span className="text-xs text-muted-foreground">{label}</span>
                   </div>
                 ))}
@@ -146,7 +149,7 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Recent Activity Log */}
-        <motion.div 
+        <motion.div
           variants={fadeInUp}
           initial="initial"
           animate="animate"
@@ -161,26 +164,26 @@ export default function Dashboard() {
             <CardContent className="p-0">
               <div className="divide-y divide-border/40 max-h-[420px] overflow-y-auto">
                 {logs.length > 0 ? (
-                  <motion.div 
-                    variants={staggerContainer} 
-                    initial="hidden" 
+                  <motion.div
+                    variants={staggerContainer}
+                    initial="hidden"
                     animate="visible"
                     className="flex flex-col"
                   >
                     {logs.slice(0, 10).map((log) => {
                       const project = projects.find(p => p.id === log.project_id);
                       return (
-                        <motion.div 
-                          key={log.id} 
+                        <motion.div
+                          key={log.id}
                           variants={staggerItem}
                           className="p-4 hover:bg-accent/50 transition-colors"
                         >
                           <div className="flex items-start gap-3">
                             <div className="mt-1 p-1.5 rounded-full bg-primary/10 text-primary">
-                              {log.action_type === "creation" ? <ArrowUpRight className="h-3 w-3" /> : 
-                               log.action_type === "status_change" ? <CheckCircle2 className="h-3 w-3" /> :
-                               log.action_type === "stage_completion" ? <CheckCircle2 className="h-3 w-3" /> :
-                               <Activity className="h-3 w-3" />}
+                              {log.action_type === "creation" ? <ArrowUpRight className="h-3 w-3" /> :
+                                log.action_type === "status_change" ? <CheckCircle2 className="h-3 w-3" /> :
+                                  log.action_type === "stage_completion" ? <CheckCircle2 className="h-3 w-3" /> :
+                                    <Activity className="h-3 w-3" />}
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-foreground truncate">
@@ -218,7 +221,7 @@ export default function Dashboard() {
       </div>
 
       {/* Project Status Summary Table */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, ...springPresets.gentle }}
@@ -257,7 +260,7 @@ export default function Dashboard() {
                     {stats.totalProjects > 0 ? Math.round((stats.completedProjects / stats.totalProjects) * 100) : 0}%
                   </span>
                   <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                    <motion.div 
+                    <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${stats.totalProjects > 0 ? (stats.completedProjects / stats.totalProjects) * 100 : 0}%` }}
                       className="h-full bg-primary"

@@ -11,7 +11,8 @@ import {
   LayoutGrid,
   List,
   CheckCircle2,
-  Clock
+  Clock,
+  Clipboard
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -43,6 +44,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const CURRENT_USER_ID = "u_1"; // Mocking logged in user
 
@@ -76,10 +78,8 @@ export default function Projects() {
     return Math.round((completed / projectStages.length) * 100);
   };
 
-  const handleSaveProject = (newProject: Project) => {
-    // The hook handles the actual state update via createProject
-    // In a real app, you'd call an API here
-    setIsDialogOpen(false);
+  const copyPath = (path: string) => {
+    navigator.clipboard.writeText(path)
   };
 
   return (
@@ -215,16 +215,31 @@ export default function Projects() {
                               <MapPin className="w-4 h-4" />
                               <span>الموقع: {project.land_location}</span>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
                               <FolderOpen className="w-4 h-4" />
                               <span className="font-mono text-xs truncate" dir="ltr">{project.server_path}</span>
+                              <span
+                                onClick={() => copyPath(project.server_path)}
+                                className="grodup  "
+
+                              >
+                                <Tooltip delayDuration={0}>
+                                  <TooltipTrigger>
+                                    <Clipboard className="p-1 rounded-md bg-primary/10 group-hover:bg-primary/80  transition-all cursor-pointer" />
+
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>نسخ مسار المشروع</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                                <Tooltip >
+
+                                </Tooltip>
+                              </span>
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Calendar className="w-4 h-4" />
-                              <span>تاريخ الترخيص المستهدف: {formatDate(project.target_license_date)}</span>
-                            </div>
+
                             <div className="flex items-center gap-2 text-sm">
                               {getProjectProgress(project.id) === 100 ? (
                                 <CheckCircle2 className="w-4 h-4 text-green-500" />
@@ -239,19 +254,13 @@ export default function Projects() {
                         </div>
 
                         <div className="mt-4 space-y-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-semibold">مراحل المشروع وسير العمل</h4>
+                          <div className="flex items-center justify-end mb-2">
                             <Link to={`${project.id}`} className="text-xs text-primary bg-secondary p-2 rounded-md">
-                              انقر للتفاصيل والتحديث
+                              <h4 className="text-sm font-semibold">مراحل المشروع وسير العمل</h4>
                             </Link>
                           </div>
-
-                          {/* <ProjectStageAccordion
-                              projectId={project.id}
-                              stages={stages.filter(s => s.project_id === project.id)}
-                              onStageUpdate={(stageId, updates) => updateStage(project.id, stageId, updates, CURRENT_USER_ID)}
-                            /> */}
                         </div>
+
                       </CardContent>
                     </Card>
                   </motion.div>

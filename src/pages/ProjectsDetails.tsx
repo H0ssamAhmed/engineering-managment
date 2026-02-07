@@ -8,6 +8,7 @@ const ProjectsDetails = () => {
 
     const { projects, stages, clients, updateStage, createProject } = useProjects();
     const projectsDetails = projects.filter(p => p.id === id)[0]
+    console.log(projectsDetails);
 
 
     return (

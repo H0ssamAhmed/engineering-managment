@@ -44,6 +44,20 @@ export const mockUsers: User[] = [
 
 export const mockProjects: Project[] = [
   {
+    id: "p0",
+    name: "البيت الجذاب",
+    type: "BUILDING_PERMIT",
+    land_plot_number: "1234/أ",
+    land_location: "الرياض - حي النرجس - قطعة 45",
+    server_path: "/Z/Projects/2026/Villa_Narjis_P1",
+    current_stage_id: "ps3_p1",
+    target_license_date: "2026-05-15",
+    client_id: "c1",
+    created_at: "2026-01-10T08:00:00Z",
+    updated_at: "2026-02-06T10:30:00Z",
+    status: "active",
+  },
+  {
     id: "p1",
     name: "فيلا سكنية - حي النرجس",
     type: "BUILDING_PERMIT",
@@ -55,7 +69,7 @@ export const mockProjects: Project[] = [
     client_id: "c1",
     created_at: "2026-01-10T08:00:00Z",
     updated_at: "2026-02-06T10:30:00Z",
-    status: "active",
+    status: "paused",
   },
   {
     id: "p2",
@@ -69,7 +83,7 @@ export const mockProjects: Project[] = [
     client_id: "c2",
     created_at: "2026-02-01T09:00:00Z",
     updated_at: "2026-02-05T14:45:00Z",
-    status: "active",
+    status: "completed",
   },
   {
     id: "p3",
@@ -83,7 +97,7 @@ export const mockProjects: Project[] = [
     client_id: "c3",
     created_at: "2025-12-15T11:00:00Z",
     updated_at: "2026-02-06T09:15:00Z",
-    status: "active",
+    status: "cancelled",
   },
 ];
 
