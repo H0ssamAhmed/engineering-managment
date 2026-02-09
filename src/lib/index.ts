@@ -1,5 +1,6 @@
 export const ROUTE_PATHS = {
   DASHBOARD: "/",
+  LOGIN: "/login",
   PROJECTS: "/projects",
   CLIENTS: "/clients",
   USERS: "/users",
@@ -8,10 +9,10 @@ export const ROUTE_PATHS = {
 export const USER_ROLES = {
   MANAGER: "مدير المكتب",
   SURVEYOR: "مساح",
-  ARCHITECT: "مصمم معماري",
+  ARCHITECT: "مهندس معماري",
   STRUCTURAL: "مهندس إنشائي",
-  FACADE: "مصمم واجهات",
-  MECHANICAL: "مصمم ميكانيك",
+  FACADE_DESIGNER: "مصمم واجهات",
+  MECHANICAL: "مهندس ميكانيك",
   BALADI: "معقب بلدي",
 } as const;
 
@@ -46,6 +47,7 @@ export type StageStatusValue =
 export const PROJECT_TYPES = {
   BUILDING_PERMIT: "رخصة بناء",
   MODIFICATION: "اضافة وتعديل",
+  Transfer_ownership: "نقل ملكية",
   DEMOLITION: "هدم وترميم",
   SURVEY_REPORT: "تقرير مساحي",
 } as const;
@@ -62,6 +64,7 @@ export interface Client {
 export interface User {
   id: string;
   name: string;
+  email?: string;
   role: UserRole;
   is_active: boolean;
 }
@@ -72,14 +75,14 @@ export interface ProjectStage {
   name: string;
   stage_order: number;
   status: StageStatusValue;
-  planned_start_date: string;
-  planned_end_date: string;
-  actual_start_date?: string;
-  actual_end_date?: string;
   responsible_user_id: string;
   notes: string;
-  last_updated_by: string;
-  last_updated_at: string;
+  last_updated_by?: string;
+  last_updated_at?: string;
+  planned_start_date?: string;
+  planned_end_date?: string;
+  actual_start_date?: string | null;
+  actual_end_date?: string | null;
 }
 
 export interface Project {
@@ -90,12 +93,13 @@ export interface Project {
   land_location: string;
   server_path: string;
   current_stage_id: string;
-  target_license_date: string;
   client_id: string;
   created_at: string;
   updated_at: string;
   status: "active" | "completed" | "cancelled" | "paused";
 }
+
+export type ProjectWithStages = Project & { stages: ProjectStage[] };
 
 export interface ProjectLog {
   id: string;
@@ -123,6 +127,19 @@ export const formatDate = (dateString: string) => {
     year: "numeric",
     month: "long",
     day: "numeric",
+  }).format(new Date(dateString));
+};
+
+/** Full date + time in 12-hour format (e.g. "٩ فبراير ٢٠٢٦، ٣:٤٥ م") */
+export const formatDateTime = (dateString: string) => {
+  if (!dateString) return "—";
+  return new Intl.DateTimeFormat("ar-SA", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
   }).format(new Date(dateString));
 };
 

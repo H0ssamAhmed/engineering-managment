@@ -30,15 +30,13 @@ import { Button } from "@/components/ui/button";
 import { Project, ProjectType, PROJECT_TYPES, Client } from "@/lib/index";
 import { ClientDialog } from "@/components/ClientDialog";
 
-// Use mock data as a temporary source for clients since we don't have a hook yet
-// In a real app, this would come from a context or query
-import { mockClients } from "@/data/index";
-
 interface ProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   project?: Project;
-  onSave: (project: Project) => void;
+  clients: Client[];
+  addClient: (client: Omit<Client, "id">) => Promise<Client | null>;
+  onSave: (project: Project) => void | Promise<void>;
 }
 
 const projectSchema = z.object({
@@ -47,15 +45,13 @@ const projectSchema = z.object({
   land_plot_number: z.string().min(1, "رقم القطعة مطلوب"),
   land_location: z.string().min(1, "الموقع مطلوب"),
   server_path: z.string().min(1, "مسار السيرفر مطلوب"),
-  target_license_date: z.string().min(1, "التاريخ مطلوب"),
   client_id: z.string().min(1, "يجب اختيار عميل"),
 });
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
 
-export function ProjectDialog({ open, onOpenChange, project, onSave }: ProjectDialogProps) {
+export function ProjectDialog({ open, onOpenChange, project, clients, addClient, onSave }: ProjectDialogProps) {
   const [isClientDialogOpen, setIsClientDialogOpen] = useState(false);
-  const [clients, setClients] = useState<Client[]>(mockClients);
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
@@ -65,7 +61,6 @@ export function ProjectDialog({ open, onOpenChange, project, onSave }: ProjectDi
       land_plot_number: "",
       land_location: "",
       server_path: "",
-      target_license_date: new Date().toISOString().split("T")[0],
       client_id: "",
     },
   });
@@ -78,7 +73,6 @@ export function ProjectDialog({ open, onOpenChange, project, onSave }: ProjectDi
         land_plot_number: project.land_plot_number,
         land_location: project.land_location,
         server_path: project.server_path,
-        target_license_date: project.target_license_date,
         client_id: project.client_id,
       });
     } else {
@@ -88,7 +82,6 @@ export function ProjectDialog({ open, onOpenChange, project, onSave }: ProjectDi
         land_plot_number: "",
         land_location: "",
         server_path: "",
-        target_license_date: new Date().toISOString().split("T")[0],
         client_id: "",
       });
     }
@@ -102,7 +95,6 @@ export function ProjectDialog({ open, onOpenChange, project, onSave }: ProjectDi
       land_plot_number: values.land_plot_number,
       land_location: values.land_location,
       server_path: values.server_path,
-      target_license_date: values.target_license_date,
       client_id: values.client_id,
       current_stage_id: project?.current_stage_id || "",
       created_at: project?.created_at || new Date().toISOString(),
@@ -114,7 +106,6 @@ export function ProjectDialog({ open, onOpenChange, project, onSave }: ProjectDi
   };
 
   const handleNewClientCreated = (newClient: Client) => {
-    setClients((prev) => [...prev, newClient]);
     form.setValue("client_id", newClient.id);
     setIsClientDialogOpen(false);
   };
@@ -255,21 +246,7 @@ export function ProjectDialog({ open, onOpenChange, project, onSave }: ProjectDi
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="target_license_date"
-                  render={({ field }) => (
-                    <FormItem className="text-right">
-                      <FormLabel className="flex items-center gap-1">
-                        <CalendarIcon className="h-3 w-3" /> تاريخ الرخصة المستهدف
-                      </FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
               </div>
 
               <DialogFooter className="flex-row-reverse gap-2">
@@ -293,7 +270,16 @@ export function ProjectDialog({ open, onOpenChange, project, onSave }: ProjectDi
       <ClientDialog
         open={isClientDialogOpen}
         onOpenChange={setIsClientDialogOpen}
-        onSave={handleNewClientCreated}
+        onSave={async (clientData) => {
+          const newClient = await addClient({
+            name: clientData.name,
+            phone: clientData.phone,
+            type: clientData.type,
+          });
+          if (newClient) {
+            handleNewClientCreated(newClient);
+          }
+        }}
       />
     </>
   );

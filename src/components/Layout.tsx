@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Briefcase,
@@ -12,7 +12,6 @@ import {
   ChevronLeft,
   LogOut
 } from "lucide-react";
-import { ROUTE_PATHS } from "@/lib/index";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -21,14 +20,23 @@ import {
   SheetTrigger
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { ROUTE_PATHS, getRoleLabel } from "@/lib/index";
 
 interface LayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { profile, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate(ROUTE_PATHS.LOGIN);
+  };
 
   const navigation = [
     {
@@ -96,13 +104,22 @@ export function Layout({ children }: LayoutProps) {
         <div className="flex items-center gap-3 px-2 py-3">
           <Avatar className="size-10 border border-border">
             <AvatarImage src="" />
-            <AvatarFallback className="bg-accent text-accent-foreground font-bold">مد</AvatarFallback>
+            <AvatarFallback className="bg-accent text-accent-foreground font-bold">
+              {profile?.name?.charAt(0) || "م"}
+            </AvatarFallback>
           </Avatar>
           <div className="flex-1 overflow-hidden">
-            <p className="text-sm font-semibold truncate">المدير العام</p>
-            <p className="text-xs text-muted-foreground truncate">مدير المكتب</p>
+            <p className="text-sm font-semibold truncate">{profile?.name || "المستخدم"}</p>
+            <p className="text-xs text-muted-foreground truncate">
+              {profile?.role ? getRoleLabel(profile.role) : "مدير المكتب"}
+            </p>
           </div>
-          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-muted-foreground hover:text-destructive"
+            onClick={handleSignOut}
+          >
             <LogOut size={18} />
           </Button>
         </div>
@@ -160,7 +177,7 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Content */}
         <main className="flex-1 p-4 lg:p-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-          {children}
+          {children ?? <Outlet />}
         </main>
 
         {/* Footer */}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Search,
   UserPlus,
@@ -8,13 +8,14 @@ import {
   UserCheck,
   UserX,
   Mail,
-  Briefcase
+  Briefcase,
+  Loader2,
 } from "lucide-react";
 import {
   User,
   UserRole,
   USER_ROLES,
-  getRoleLabel
+  getRoleLabel,
 } from "@/lib/index";
 import {
   Table,
@@ -53,61 +54,91 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { mockUsers } from "@/data/index";
+import { useAuth } from "@/contexts/AuthContext";
+import { fetchUsers, createUser, updateUser, toggleUserStatus } from "@/api/users";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function Users() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [saving, setSaving] = useState(false);
+  const { isManager } = useAuth();
   const { toast } = useToast();
+
+  const loadUsers = useCallback(async () => {
+    setLoading(true);
+    const data = await fetchUsers();
+    setUsers(data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
 
   const filteredUsers = users.filter((user) =>
     user.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleToggleStatus = (userId: string) => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === userId ? { ...u, is_active: !u.is_active } : u
-      )
-    );
-    toast({
-      title: "تم تحديث الحالة",
-      description: "تم تغيير حالة الموظف بنجاح.",
-    });
+  const handleToggleStatus = async (userId: string) => {
+    const success = await toggleUserStatus(userId);
+    if (success) {
+      await loadUsers();
+      toast({
+        title: "تم تحديث الحالة",
+        description: "تم تغيير حالة الموظف بنجاح.",
+      });
+    } else {
+      toast({
+        title: "خطأ",
+        description: "فشل في تحديث الحالة.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleSaveUser = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSaveUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get("name") as string;
     const role = formData.get("role") as UserRole;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    setSaving(true);
 
     if (editingUser) {
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === editingUser.id ? { ...u, name, role } : u
-        )
-      );
-      toast({
-        title: "تم التحديث",
-        description: "تم تحديث بيانات الموظف بنجاح.",
-      });
+      const updated = await updateUser(editingUser.id, { name, role });
+      if (updated) {
+        await loadUsers();
+        toast({ title: "تم التحديث", description: "تم تحديث بيانات الموظف بنجاح." });
+      } else {
+        toast({ title: "خطأ", description: "فشل في التحديث.", variant: "destructive" });
+      }
     } else {
-      const newUser: User = {
-        id: Math.random().toString(36).substr(2, 9),
-        name,
-        role,
-        is_active: true,
-      };
-      setUsers((prev) => [...prev, newUser]);
-      toast({
-        title: "تمت الإضافة",
-        description: "تم إضافة الموظف الجديد إلى الفريق.",
-      });
+      if (!email || !password) {
+        toast({ title: "خطأ", description: "البريد الإلكتروني وكلمة المرور مطلوبة.", variant: "destructive" });
+        setSaving(false);
+        return;
+      }
+      const newUser = await createUser({ email, password, name, role });
+      if (newUser) {
+        await loadUsers();
+        toast({ title: "تمت الإضافة", description: "تم إضافة الموظف الجديد إلى الفريق." });
+        setIsDialogOpen(false);
+      } else {
+        toast({
+          title: "خطأ",
+          description: "فشل في الإضافة. تأكد من نشر Edge Function وعملك كمدير.",
+          variant: "destructive",
+        });
+      }
     }
+
+    setSaving(false);
     setIsDialogOpen(false);
     setEditingUser(null);
   };
@@ -132,7 +163,7 @@ export default function Users() {
           if (!open) setEditingUser(null);
         }}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
+            <Button className="gap-2" disabled={!isManager} title={!isManager ? "فقط مدير المكتب يمكنه إضافة موظفين" : undefined}>
               <UserPlus className="w-4 h-4" />
               إضافة موظف جديد
             </Button>
@@ -148,6 +179,31 @@ export default function Users() {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
+                {!editingUser && (
+                  <>
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">البريد الإلكتروني</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="user@office.com"
+                        required={!editingUser}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="password">كلمة المرور</Label>
+                      <Input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="••••••••"
+                        required={!editingUser}
+                        minLength={6}
+                      />
+                    </div>
+                  </>
+                )}
                 <div className="grid gap-2">
                   <Label htmlFor="name">الاسم الكامل</Label>
                   <Input
@@ -178,7 +234,9 @@ export default function Users() {
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   إلغاء
                 </Button>
-                <Button type="submit">حفظ التغييرات</Button>
+                <Button type="submit" disabled={saving}>
+                  {saving ? <><Loader2 className="w-4 h-4 animate-spin ml-2" /> حفظ...</> : "حفظ التغييرات"}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -250,6 +308,12 @@ export default function Users() {
         </CardHeader>
         <CardContent>
           <div className="rounded-md border overflow-hidden">
+            {loading ? (
+              <div className="flex items-center justify-center py-12 gap-2 text-muted-foreground">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                جاري تحميل الموظفين...
+              </div>
+            ) : (
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow>
@@ -272,7 +336,7 @@ export default function Users() {
                             <div className="font-semibold">{user.name}</div>
                             <div className="text-xs text-muted-foreground flex items-center gap-1">
                               <Mail className="w-3 h-3" />
-                              {user.id}@office.com
+                              {user.email || `${user.id}@office.com`}
                             </div>
                           </div>
                         </div>
@@ -306,6 +370,7 @@ export default function Users() {
                               تعديل البيانات
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
+                            {isManager && (
                             <DropdownMenuItem 
                               className={user.is_active ? "text-destructive gap-2 cursor-pointer" : "text-green-600 gap-2 cursor-pointer"}
                               onClick={() => handleToggleStatus(user.id)}
@@ -316,6 +381,7 @@ export default function Users() {
                                 <><UserCheck className="w-4 h-4" /> تفعيل الحساب</>
                               )}
                             </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -330,6 +396,7 @@ export default function Users() {
                 )}
               </TableBody>
             </Table>
+            )}
           </div>
         </CardContent>
       </Card>

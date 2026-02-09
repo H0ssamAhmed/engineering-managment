@@ -20,12 +20,11 @@ import {
   ProjectStage,
   STAGE_STATUS,
   StageStatusValue,
-  formatDate,
+  formatDateTime,
 } from "@/lib/index";
 import {
   Clock,
   User,
-  Calendar,
   Save,
   Info,
   CheckCircle2,
@@ -44,18 +43,18 @@ export function ProjectStageAccordion({
   onStageUpdate,
 }: ProjectStageAccordionProps) {
   const sortedStages = [...stages].sort((a, b) => a.stage_order - b.stage_order);
-  
+
   // Find the current active stage to expand it by default
   const activeStage = sortedStages.find((s) => s.status === "in_progress") || sortedStages.find((s) => s.status === "not_started") || sortedStages[0];
   const [expandedValue, setExpandedValue] = useState<string | undefined>(activeStage?.id);
-  
+
   // Update expanded value if the active stage changes (e.g., auto-progression)
   useEffect(() => {
     const currentActive = sortedStages.find((s) => s.status === "in_progress");
     if (currentActive) {
       setExpandedValue(currentActive.id);
     }
-  }, [stages]);
+  }, [sortedStages]);
 
   const handleStatusChange = (stageId: string, newStatus: StageStatusValue) => {
     onStageUpdate(stageId, { status: newStatus });
@@ -66,7 +65,7 @@ export function ProjectStageAccordion({
   };
 
   return (
-    <div className="w-full space-y-4" dir="rtl">
+    <div className="w-full space-y-4" dir="rtl" data-project-id={projectId}>
       <Accordion
         type="single"
         collapsible
@@ -116,10 +115,13 @@ export function ProjectStageAccordion({
                       <span>{stage.responsible_user_id || "غير محدد"}</span>
                     </div>
 
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>{formatDate(stage.planned_end_date)}</span>
-                    </div>
+                    {(stage.last_updated_by || stage.last_updated_at) && (
+                      <div className="flex items-center gap-2 text-xs">
+                        <span>{stage.last_updated_by || "—"}</span>
+                        <span className="text-muted-foreground/80">•</span>
+                        <span>{formatDateTime(stage.last_updated_at || "")}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </AccordionTrigger>
@@ -163,8 +165,8 @@ export function ProjectStageAccordion({
                           <span className="font-medium">{stage.last_updated_by || "النظام"}</span>
                         </div>
                         <div className="space-y-1">
-                          <span className="text-muted-foreground block">التاريخ:</span>
-                          <span className="font-medium">{formatDate(stage.last_updated_at)}</span>
+                          <span className="text-muted-foreground block">التاريخ والوقت:</span>
+                          <span className="font-medium">{formatDateTime(stage.last_updated_at)}</span>
                         </div>
                       </div>
                     </div>
@@ -173,21 +175,16 @@ export function ProjectStageAccordion({
                   {/* Left Column: Notes */}
                   <div className="space-y-2 flex flex-col">
                     <Label className="text-sm font-semibold">ملاحظات المرحلة</Label>
-                    <StageNotesField 
-                      initialNotes={stage.notes} 
-                      onSave={(notes) => handleSaveNotes(stage.id, notes)} 
+                    <StageNotesField
+                      initialNotes={stage.notes}
+                      onSave={(notes) => handleSaveNotes(stage.id, notes)}
                     />
                     <div className="mt-auto flex gap-4 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        التخطيط: {formatDate(stage.planned_start_date)}
+                        التخطيط:
                       </div>
-                      {stage.actual_start_date && (
-                        <div className="flex items-center gap-1 text-primary">
-                          <Clock className="w-3 h-3" />
-                          البدء الفعلي: {formatDate(stage.actual_start_date)}
-                        </div>
-                      )}
+
                     </div>
                   </div>
                 </div>
@@ -203,12 +200,12 @@ export function ProjectStageAccordion({
 /**
  * Internal sub-component for managing local state of notes before saving
  */
-function StageNotesField({ 
-  initialNotes, 
-  onSave 
-}: { 
-  initialNotes: string; 
-  onSave: (notes: string) => void 
+function StageNotesField({
+  initialNotes,
+  onSave
+}: {
+  initialNotes: string;
+  onSave: (notes: string) => void
 }) {
   const [notes, setNotes] = useState(initialNotes);
   const [isDirty, setIsDirty] = useState(false);

@@ -1,31 +1,31 @@
 import React, { useState, useMemo } from "react";
 import { Search, Plus, User, Building2, Edit, Trash2, MoreHorizontal } from "lucide-react";
 import { Client } from "@/lib/index";
-import { mockClients } from "@/data/index";
+import { useProjects } from "@/hooks/useProjects";
 import { ClientDialog } from "@/components/ClientDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Card } from "@/components/ui/card";
 
 export default function Clients() {
-  const [clients, setClients] = useState<Client[]>(mockClients);
+  const { clients, addClient, updateClient, removeClient, loading } = useProjects();
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | undefined>(undefined);
@@ -48,22 +48,25 @@ export default function Clients() {
     setIsDialogOpen(true);
   };
 
-  const handleDeleteClient = (id: string) => {
+  const handleDeleteClient = async (id: string) => {
     if (confirm("هل أنت متأكد من رغبتك في حذف هذا العميل؟")) {
-      setClients((prev) => prev.filter((c) => c.id !== id));
+      await removeClient(id);
     }
   };
 
-  const handleSaveClient = (client: Client) => {
+  const handleSaveClient = async (client: Client) => {
     if (selectedClient) {
-      // Update existing
-      setClients((prev) =>
-        prev.map((c) => (c.id === client.id ? client : c))
-      );
+      await updateClient(selectedClient.id, {
+        name: client.name,
+        phone: client.phone,
+        type: client.type,
+      });
     } else {
-      // Add new (ID generation simplified for mock)
-      const newClient = { ...client, id: `c${Date.now()}` };
-      setClients((prev) => [...prev, newClient]);
+      await addClient({
+        name: client.name,
+        phone: client.phone,
+        type: client.type,
+      });
     }
     setIsDialogOpen(false);
   };
@@ -96,80 +99,84 @@ export default function Clients() {
           />
         </div>
 
-        <div className="rounded-md border border-border overflow-hidden">
-          <Table>
-            <TableHeader className="bg-muted/50">
-              <TableRow>
-                <TableHead className="text-right">اسم العميل</TableHead>
-                <TableHead className="text-right">النوع</TableHead>
-                <TableHead className="text-right">رقم الهاتف</TableHead>
-                <TableHead className="text-left">الإجراءات</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredClients.length > 0 ? (
-                filteredClients.map((client) => (
-                  <TableRow key={client.id} className="hover:bg-accent/50 transition-colors">
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                          {client.type === "individual" ? (
-                            <User className="w-4 h-4" />
-                          ) : (
-                            <Building2 className="w-4 h-4" />
-                          )}
+        {loading ? (
+          <div className="py-8 text-center text-muted-foreground">جاري التحميل...</div>
+        ) : (
+          <div className="rounded-md border border-border overflow-hidden">
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead className="text-right">اسم العميل</TableHead>
+                  <TableHead className="text-right">النوع</TableHead>
+                  <TableHead className="text-right">رقم الهاتف</TableHead>
+                  <TableHead className="text-left">الإجراءات</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredClients.length > 0 ? (
+                  filteredClients.map((client) => (
+                    <TableRow key={client.id} className="hover:bg-accent/50 transition-colors">
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            {client.type === "individual" ? (
+                              <User className="w-4 h-4" />
+                            ) : (
+                              <Building2 className="w-4 h-4" />
+                            )}
+                          </div>
+                          <span>{client.name}</span>
                         </div>
-                        <span>{client.name}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={client.type === "company" ? "secondary" : "outline"}
-                        className="font-normal"
-                      >
-                        {client.type === "company" ? "شركة" : "فرد"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-mono">{client.phone}</TableCell>
-                    <TableCell className="text-left">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40">
-                          <DropdownMenuLabel className="text-right">خيارات</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleEditClient(client)}
-                            className="flex items-center justify-end gap-2 text-right cursor-pointer"
-                          >
-                            <span>تعديل</span>
-                            <Edit className="w-4 h-4" />
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteClient(client.id)}
-                            className="flex items-center justify-end gap-2 text-right cursor-pointer text-destructive focus:text-destructive"
-                          >
-                            <span>حذف</span>
-                            <Trash2 className="w-4 h-4" />
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={client.type === "company" ? "secondary" : "outline"}
+                          className="font-normal"
+                        >
+                          {client.type === "company" ? "شركة" : "فرد"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-mono">{client.phone}</TableCell>
+                      <TableCell className="text-left">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-40">
+                            <DropdownMenuLabel className="text-right">خيارات</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => handleEditClient(client)}
+                              className="flex items-center justify-end gap-2 text-right cursor-pointer"
+                            >
+                              <span>تعديل</span>
+                              <Edit className="w-4 h-4" />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteClient(client.id)}
+                              className="flex items-center justify-end gap-2 text-right cursor-pointer text-destructive focus:text-destructive"
+                            >
+                              <span>حذف</span>
+                              <Trash2 className="w-4 h-4" />
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                      لا يوجد عملاء مضافون حالياً يطابقون البحث.
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
-                    لا يوجد عملاء مضافون حالياً يطابقون البحث.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </Card>
 
       <ClientDialog

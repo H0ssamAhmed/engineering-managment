@@ -49,7 +49,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 const CURRENT_USER_ID = "u_1"; // Mocking logged in user
 
 export default function Projects() {
-  const { projects, stages, clients, updateStage, createProject } = useProjects();
+  const { projects, stages, clients, updateStage, createProject, addClient, loading } = useProjects();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -158,7 +158,11 @@ export default function Projects() {
         </TabsList>
 
         <TabsContent value="all_projects" className="m-0">
-          {filteredProjects.length === 0 ? (
+          {loading ? (
+            <Card className="border-dashed flex flex-col items-center justify-center p-12 text-center">
+              <p className="text-muted-foreground">جاري التحميل...</p>
+            </Card>
+          ) : filteredProjects.length === 0 ? (
             <Card className="border-dashed flex flex-col items-center justify-center p-12 text-center">
               <FolderOpen className="w-12 h-12 text-muted-foreground/30 mb-4" />
               <CardTitle className="text-muted-foreground">لا توجد مشاريع تطابق بحثك</CardTitle>
@@ -284,18 +288,19 @@ export default function Projects() {
       <ProjectDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        onSave={(data) => {
-          createProject({
+        clients={clients}
+        addClient={addClient}
+        onSave={async (data) => {
+          await createProject({
             name: data.name,
             type: data.type,
             land_plot_number: data.land_plot_number,
             land_location: data.land_location,
             server_path: data.server_path,
             current_stage_id: "",
-            target_license_date: data.target_license_date,
             client_id: data.client_id,
           }, CURRENT_USER_ID);
-          setIsDialogOpen(false);
+          // setIsDialogOpen(false);
         }}
       />
     </div>

@@ -28,7 +28,7 @@ interface ClientDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   client?: Client;
-  onSave: (client: Client) => void;
+  onSave: (client: Client) => void | Promise<void>;
 }
 
 const clientSchema = z.object({
@@ -67,14 +67,14 @@ export function ClientDialog({
     }
   }, [open, client, form]);
 
-  const handleSubmit = (values: ClientFormValues) => {
+  const handleSubmit = async (values: ClientFormValues) => {
     const updatedClient: Client = {
-      id: client?.id || Math.random().toString(36).substring(2, 11),
+      id: client?.id || crypto.randomUUID(),
       name: values.name,
       phone: values.phone,
       type: values.type,
     };
-    onSave(updatedClient);
+    await onSave(updatedClient);
     onOpenChange(false);
   };
 

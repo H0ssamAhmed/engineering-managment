@@ -1,243 +1,287 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Project,
   ProjectStage,
   ProjectLog,
   Client,
-  StageStatusValue,
   STAGE_STATUS,
+  ProjectWithStages,
 } from "../lib/index";
-import { mockProjects, mockProjectStages, mockClients } from "../data/index";
+import {
+  fetchProjects,
+  fetchProjectStages,
+  fetchProjectLogs,
+  fetchProjectById,
+  createProject as createProjectApi,
+  updateProject,
+  updateProjectStage,
+  addProjectLog,
+  type CreateProjectInput,
+} from "../api/projects";
+import {
+  fetchClients,
+  createClient as createClientApi,
+  updateClient as updateClientApi,
+  deleteClient as deleteClientApi,
+} from "../api/clients";
+import { useAuth } from "@/contexts/AuthContext";
+
+const CURRENT_USER_ID = "82a9eeb0-ddec-470d-ac1c-7e4bb6efa83f";
 
 /**
- * Custom hook for managing project state, stage updates, automatic progression, and audit logging.
- * This simulates a database layer using local state.
+ * Custom hook for managing project state with Supabase.
+ * Fetches real data from the database and persists changes.
  */
 export const useProjects = () => {
-  const [projects, setProjects] = useState<Project[]>(mockProjects);
-  const [stages, setStages] = useState<ProjectStage[]>(mockProjectStages);
-  const [clients, setClients] = useState<Client[]>(mockClients);
+  const { profile } = useAuth();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [stages, setStages] = useState<ProjectStage[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [logs, setLogs] = useState<ProjectLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Utility to add a log entry
-  const addLog = useCallback((log: Omit<ProjectLog, "id" | "created_at">) => {
-    const newLog: ProjectLog = {
-      ...log,
-      id: Math.random().toString(36).substr(2, 9),
-      created_at: new Date().toISOString(),
-    };
-    setLogs((prev) => [newLog, ...prev]);
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [projectsData, stagesData, clientsData, logsData] =
+        await Promise.all([
+          fetchProjects(),
+          fetchProjectStages(),
+          fetchClients(),
+          fetchProjectLogs(),
+        ]);
+      console.log(projectsData);
+      console.log(stagesData);
+      console.log(clientsData);
+      console.log(logsData);
+
+      setProjects(projectsData);
+      setStages(stagesData);
+      setClients(clientsData);
+      setLogs(logsData);
+    } catch (err) {
+      console.error("Error loading data:", err);
+      setError(err instanceof Error ? err.message : "فشل تحميل البيانات");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // Function to add a new client (used during project creation)
-  const addClient = useCallback((client: Omit<Client, "id">) => {
-    const newClient: Client = {
-      ...client,
-      id: `c_${Math.random().toString(36).substr(2, 5)}`,
-    };
-    setClients((prev) => [...prev, newClient]);
-    return newClient;
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const addLog = useCallback(
+    async (log: Omit<ProjectLog, "id" | "created_at">) => {
+      const success = await addProjectLog({
+        project_id: log.project_id,
+        stage_id: log.stage_id,
+        user_id: CURRENT_USER_ID,
+        action_type: log.action_type,
+        old_value: log.old_value,
+        new_value: log.new_value,
+        comment: log.comment,
+      });
+      if (success) {
+        const newLog: ProjectLog = {
+          ...log,
+          id: crypto.randomUUID(),
+          created_at: new Date().toISOString(),
+        };
+        setLogs((prev) => [newLog, ...prev]);
+      }
+    },
+    [],
+  );
+
+  const addClient = useCallback(
+    async (client: Omit<Client, "id">): Promise<Client | null> => {
+      const newClient = await createClientApi(client);
+      if (newClient) {
+        setClients((prev) => [...prev, newClient]);
+        return newClient;
+      }
+      return null;
+    },
+    [],
+  );
+
+  const updateClient = useCallback(
+    async (
+      id: string,
+      updates: Partial<Omit<Client, "id">>,
+    ): Promise<Client | null> => {
+      const updated = await updateClientApi(id, updates);
+      if (updated) {
+        setClients((prev) => prev.map((c) => (c.id === id ? updated : c)));
+        return updated;
+      }
+      return null;
+    },
+    [],
+  );
+
+  const removeClient = useCallback(async (id: string): Promise<boolean> => {
+    const success = await deleteClientApi(id);
+    if (success) {
+      setClients((prev) => prev.filter((c) => c.id !== id));
+      return true;
+    }
+    return false;
   }, []);
 
-  // Function to create a new project with its default stages
   const createProject = useCallback(
-    (
+    async (
       projectData: Omit<Project, "id" | "created_at" | "updated_at" | "status">,
       userId: string,
     ) => {
-      const projectId = `p_${Math.random().toString(36).substr(2, 5)}`;
-      const now = new Date().toISOString();
-
-      const newProject: Project = {
-        ...projectData,
-        id: projectId,
-        created_at: now,
-        updated_at: now,
-        status: "active",
+      const input: CreateProjectInput = {
+        name: projectData.name,
+        type: projectData.type,
+        land_plot_number: projectData.land_plot_number,
+        land_location: projectData.land_location,
+        server_path: projectData.server_path,
+        client_id: projectData.client_id,
       };
-
-      // Default workflow stages for Building Permit as per requirements
-      const workflowNames = [
-        "الرفع المساحي",
-        "تسجيل الصك",
-        "التصميم المعماري",
-        "التصميم الإنشائي",
-        "تصميم الواجهات",
-        "التصاميم الميكانيكية",
-        "تجهيز ملفات بلدي",
-        "التقديم في بلدي",
-      ];
-
-      const newStages: ProjectStage[] = workflowNames.map((name, index) => ({
-        id: `ps_${projectId}_${index + 1}`,
-        project_id: projectId,
-        name,
-        stage_order: index + 1,
-        status: index === 0 ? "in_progress" : "not_started",
-        planned_start_date: now.split("T")[0],
-        planned_end_date: now.split("T")[0], // Should be calculated in real app
-        actual_start_date: index === 0 ? now.split("T")[0] : undefined,
-        responsible_user_id: userId,
-        notes: "",
-        last_updated_by: userId,
-        last_updated_at: now,
-      }));
-
-      setProjects((prev) => [...prev, newProject]);
-      setStages((prev) => [...prev, ...newStages]);
-
-      addLog({
-        project_id: projectId,
-        user_id: userId,
-        action_type: "creation",
-        comment: "تم إنشاء المشروع الجديد بنجاح",
-      });
-
-      return newProject;
+      const newProject = await createProjectApi(input, userId);
+      if (newProject) {
+        setProjects((prev) => [newProject, ...prev]);
+        await loadData();
+        return newProject;
+      }
+      return null;
     },
-    [addLog],
+    [loadData],
   );
 
-  // Handle Stage Updates with Automatic Progression
   const updateStage = useCallback(
-    (
+    async (
       projectId: string,
       stageId: string,
       updates: Partial<ProjectStage>,
-      userId: string,
     ) => {
+      const projectStages = stages
+        .filter((s) => s.project_id === projectId)
+        .sort((a, b) => a.stage_order - b.stage_order);
+      const currentStageIndex = projectStages.findIndex(
+        (s) => s.id === stageId,
+      );
+      const currentStage = projectStages[currentStageIndex];
+
+      if (!currentStage) return;
+
+      if (updates.status && updates.status !== currentStage.status) {
+        await addLog({
+          project_id: projectId,
+          stage_id: stageId,
+          user_id: CURRENT_USER_ID,
+          action_type: "status_change",
+          old_value: currentStage.status,
+          new_value: updates.status,
+          comment: `تم تغيير حالة المرحلة "${currentStage.name}" إلى ${Object.values(STAGE_STATUS).find((s) => s.value === updates.status)?.label || updates.status}`,
+        });
+      }
+
+      if (updates.notes !== undefined && updates.notes !== currentStage.notes) {
+        await addLog({
+          project_id: projectId,
+          stage_id: stageId,
+          user_id: CURRENT_USER_ID,
+          action_type: "note_update",
+          new_value: updates.notes,
+          comment: `تم تحديث ملاحظات المرحلة "${currentStage.name}"`,
+        });
+      }
+
       const now = new Date().toISOString();
-      const today = now.split("T")[0];
+      const currentUserName = profile?.name || "النظام";
 
-      setStages((prevStages) => {
-        const projectStages = prevStages
-          .filter((s) => s.project_id === projectId)
-          .sort((a, b) => a.stage_order - b.stage_order);
-        const currentStageIndex = projectStages.findIndex(
-          (s) => s.id === stageId,
-        );
+      let finalUpdates: Partial<ProjectStage> = {
+        ...updates,
+        last_updated_by: currentUserName,
+        last_updated_at: now,
+      };
 
-        if (currentStageIndex === -1) return prevStages;
-
-        const currentStage = projectStages[currentStageIndex];
-        const updatedStage: ProjectStage = {
-          ...currentStage,
-          ...updates,
-          last_updated_by: userId,
-          last_updated_at: now,
+      if (updates.status === "completed") {
+        const today = now.split("T")[0];
+        finalUpdates = {
+          ...finalUpdates,
+          actual_end_date: today,
         };
 
-        // Logging Status Change
-        if (updates.status && updates.status !== currentStage.status) {
-          addLog({
-            project_id: projectId,
-            stage_id: stageId,
-            user_id: userId,
-            action_type: "status_change",
-            old_value: currentStage.status,
-            new_value: updates.status,
-            comment: `تم تغيير حالة المرحلة "${currentStage.name}" إلى ${STAGE_STATUS[Object.keys(STAGE_STATUS).find((k) => STAGE_STATUS[k as keyof typeof STAGE_STATUS].value === updates.status) as keyof typeof STAGE_STATUS]?.label || updates.status}`,
+        await addLog({
+          project_id: projectId,
+          stage_id: stageId,
+          user_id: CURRENT_USER_ID,
+          action_type: "stage_completion",
+          comment: `تم إكمال المرحلة "${currentStage.name}" بنجاح`,
+        });
+
+        const nextStage = projectStages[currentStageIndex + 1];
+        if (nextStage && nextStage.status === "not_started") {
+          await updateProjectStage(
+            nextStage.id,
+            {
+              status: "in_progress",
+              actual_start_date: today,
+              last_updated_by: currentUserName,
+              last_updated_at: now,
+            },
+            CURRENT_USER_ID,
+          );
+          await updateProject(projectId, {
+            current_stage_id: nextStage.id,
           });
-        }
-
-        // Logging Note Update
-        if (
-          updates.notes !== undefined &&
-          updates.notes !== currentStage.notes
-        ) {
-          addLog({
+          await addLog({
             project_id: projectId,
-            stage_id: stageId,
-            user_id: userId,
-            action_type: "note_update",
-            new_value: updates.notes,
-            comment: `تم تحديث ملاحظات المرحلة "${currentStage.name}"`,
+            stage_id: nextStage.id,
+            user_id: CURRENT_USER_ID,
+            action_type: "auto_progression",
+            comment: `بدء المرحلة التالية تلقائياً: "${nextStage.name}"`,
           });
-        }
-
-        let finalStages = prevStages.map((s) =>
-          s.id === stageId ? updatedStage : s,
-        );
-
-        // Automatic Stage Progression Rule
-        if (updates.status === "completed") {
-          // 1. Mark current stage completion date
-          updatedStage.actual_end_date = today;
-
-          addLog({
+        } else if (!nextStage) {
+          await updateProject(projectId, { status: "completed" });
+          await addLog({
             project_id: projectId,
-            stage_id: stageId,
-            user_id: userId,
+            user_id: CURRENT_USER_ID,
             action_type: "stage_completion",
-            comment: `تم إكمال المرحلة "${currentStage.name}" بنجاح`,
+            comment: "تم إكمال المشروع بالكامل",
           });
-
-          // 2. Open Next Stage Automatically
-          const nextStage = projectStages[currentStageIndex + 1];
-          if (nextStage && nextStage.status === "not_started") {
-            finalStages = finalStages.map((s) =>
-              s.id === nextStage.id
-                ? {
-                    ...s,
-                    status: "in_progress",
-                    actual_start_date: today,
-                    last_updated_by: userId,
-                    last_updated_at: now,
-                  }
-                : s,
-            );
-
-            // Update project current_stage_id
-            setProjects((prev) =>
-              prev.map((p) =>
-                p.id === projectId
-                  ? { ...p, current_stage_id: nextStage.id, updated_at: now }
-                  : p,
-              ),
-            );
-
-            addLog({
-              project_id: projectId,
-              stage_id: nextStage.id,
-              user_id: userId,
-              action_type: "auto_progression",
-              comment: `بدء المرحلة التالية تلقائياً: "${nextStage.name}"`,
-            });
-          } else if (!nextStage) {
-            // Final Stage Handling
-            setProjects((prev) =>
-              prev.map((p) =>
-                p.id === projectId
-                  ? { ...p, status: "completed", updated_at: now }
-                  : p,
-              ),
-            );
-
-            addLog({
-              project_id: projectId,
-              user_id: userId,
-              action_type: "stage_completion",
-              comment: "تم إكمال المشروع بالكامل",
-            });
-          }
         }
+      }
 
-        return finalStages;
-      });
+      const success = await updateProjectStage(
+        stageId,
+        finalUpdates,
+        CURRENT_USER_ID,
+      );
+      if (success) {
+        await loadData();
+      }
     },
-    [addLog],
+    [stages, addLog, loadData, profile?.name],
   );
 
-  // Stats Calculation
+  const refreshClients = useCallback(() => {
+    fetchClients().then(setClients);
+  }, []);
+
+  const getProjectById = useCallback(
+    async (projectId: string): Promise<ProjectWithStages | null> => {
+      return fetchProjectById(projectId);
+    },
+    [],
+  );
+
   const stats = {
     totalProjects: projects.length,
     pausedProjects: projects.filter((p) => p.status === "paused").length,
     activeProjects: projects.filter((p) => p.status === "active").length,
     completedProjects: projects.filter((p) => p.status === "completed").length,
     lateProjects: projects.filter((p) => {
-      const target = new Date(p.target_license_date);
-      const now = new Date();
-      return p.status === "active" && target < now;
+      return p.status === "active";
     }).length,
     stageDistribution: stages.reduce(
       (acc, stage) => {
@@ -254,9 +298,16 @@ export const useProjects = () => {
     clients,
     logs,
     stats,
+    loading,
+    error,
+    loadData,
     updateStage,
     createProject,
     addClient,
+    updateClient,
+    removeClient,
     addLog,
+    refreshClients,
+    getProjectById,
   };
 };
