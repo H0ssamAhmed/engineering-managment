@@ -5,9 +5,7 @@ import {
   Filter,
   MapPin,
   User,
-  Calendar,
   FolderOpen,
-  ChevronLeft,
   LayoutGrid,
   List,
   CheckCircle2,
@@ -16,15 +14,12 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ROUTE_PATHS,
-  Project,
-  STAGE_STATUS,
-  formatDate,
-  getProjectTypeLabel
+
+  getProjectTypeLabel,
+  ProjectStatusEnum
 } from "@/lib/index";
 import { useProjects } from "@/hooks/useProjects";
 import { ProjectDialog } from "@/components/ProjectDialog";
-import { ProjectStageAccordion } from "@/components/ProjectStageAccordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -45,7 +40,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
+import { ProjectStatus } from "@/lib/index"
 const CURRENT_USER_ID = "u_1"; // Mocking logged in user
 
 export default function Projects() {
@@ -198,7 +193,7 @@ export default function Projects() {
                                 {project.name}
                               </CardTitle>
                               <Badge variant={project.status === 'active' ? 'outline' : 'secondary'} className="text-xs">
-                                {project.status === 'active' ? 'قيد العمل' : 'مكتمل'}
+                                {ProjectStatusEnum[project.status]}
                               </Badge>
                             </div>
                             <CardDescription className="flex items-center gap-2 text-sm">

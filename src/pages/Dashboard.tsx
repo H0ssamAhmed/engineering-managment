@@ -32,7 +32,6 @@ const STAGE_COLORS = {
   not_started: "oklch(0.95 0.01 255)",
   in_progress: "oklch(0.52 0.14 255)",
   waiting: "oklch(0.72 0.15 65)",
-  paused: "oklch(0.63 0.26 29.23)",
   completed: "oklch(0.65 0.13 145)",
 };
 
@@ -40,12 +39,12 @@ const STAGE_LABELS: Record<string, string> = {
   not_started: "لم يبدأ",
   in_progress: "قيد التنفيذ",
   waiting: "بانتظار الإجراء",
-  paused: "متوقف مؤقت",
   completed: "مكتمل",
 };
 
 export default function Dashboard() {
   const { stats, logs, projects } = useProjects();
+  console.log(stats);
 
   // Prepare data for the stage distribution chart
   const chartData = Object.entries(stats.stageDistribution).map(([status, count]) => ({
@@ -124,11 +123,12 @@ export default function Dashboard() {
                       cursor={{ fill: 'oklch(0.95 0.01 255)' }}
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                     />
-                    <Bar dataKey="count" radius={[4, 4, 0, 0,]} barSize={50}>
+                    <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={50}>
                       {chartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={STAGE_COLORS[entry.status as keyof typeof STAGE_COLORS] || "var(--primary)"} />
                       ))}
                     </Bar>
+
                   </BarChart>
                 </ResponsiveContainer>
               </div>

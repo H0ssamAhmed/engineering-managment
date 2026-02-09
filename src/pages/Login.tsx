@@ -20,7 +20,6 @@ export default function Login() {
     e.preventDefault();
     setSubmitting(true);
     const { error } = await signIn(email, password);
-    setSubmitting(false);
 
     if (error) {
       toast({
@@ -29,6 +28,8 @@ export default function Login() {
         variant: "destructive",
       });
     } else {
+      setSubmitting(false);
+
       toast({ title: "تم تسجيل الدخول بنجاح" });
       navigate("/");
     }

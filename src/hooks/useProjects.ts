@@ -195,7 +195,9 @@ export const useProjects = () => {
         });
       }
 
-      const now = new Date().toISOString();
+      const now = new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Riyadh",
+      });
       const currentUserName = profile?.name || "النظام";
 
       let finalUpdates: Partial<ProjectStage> = {
@@ -205,11 +207,7 @@ export const useProjects = () => {
       };
 
       if (updates.status === "completed") {
-        const today = now.split("T")[0];
-        finalUpdates = {
-          ...finalUpdates,
-          actual_end_date: today,
-        };
+        finalUpdates = { ...finalUpdates };
 
         await addLog({
           project_id: projectId,
@@ -225,7 +223,6 @@ export const useProjects = () => {
             nextStage.id,
             {
               status: "in_progress",
-              actual_start_date: today,
               last_updated_by: currentUserName,
               last_updated_at: now,
             },

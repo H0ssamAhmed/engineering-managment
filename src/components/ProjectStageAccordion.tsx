@@ -49,12 +49,12 @@ export function ProjectStageAccordion({
   const [expandedValue, setExpandedValue] = useState<string | undefined>(activeStage?.id);
 
   // Update expanded value if the active stage changes (e.g., auto-progression)
-  useEffect(() => {
-    const currentActive = sortedStages.find((s) => s.status === "in_progress");
-    if (currentActive) {
-      setExpandedValue(currentActive.id);
-    }
-  }, [sortedStages]);
+  // useEffect(() => {
+  //   const currentActive = sortedStages.find((s) => s.status === "in_progress");
+  //   if (currentActive) {
+  //     setExpandedValue(currentActive.id);
+  //   }
+  // }, [sortedStages]);
 
   const handleStatusChange = (stageId: string, newStatus: StageStatusValue) => {
     onStageUpdate(stageId, { status: newStatus });
@@ -110,10 +110,7 @@ export function ProjectStageAccordion({
                       {statusConfig?.label}
                     </Badge>
 
-                    <div className="flex items-center gap-1">
-                      <User className="w-4 h-4" />
-                      <span>{stage.responsible_user_id || "غير محدد"}</span>
-                    </div>
+
 
                     {(stage.last_updated_by || stage.last_updated_at) && (
                       <div className="flex items-center gap-2 text-xs">

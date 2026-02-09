@@ -182,7 +182,7 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Footer */}
         <footer className="py-6 px-8 border-t border-border bg-card text-center text-sm text-muted-foreground">
-          <p>© 2026 مكتب إتقان للاستشارات الهندسية - جميع الحقوق محفوظة</p>
+          <p>© 2026 مكتب آنس حلواني للاستشارات الهندسية - جميع الحقوق محفوظة</p>
         </footer>
       </div>
     </div>

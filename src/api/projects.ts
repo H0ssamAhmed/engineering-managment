@@ -143,7 +143,6 @@ export async function createProject(
     status: index === 0 ? "in_progress" : "not_started",
     planned_start_date: today,
     planned_end_date: today,
-    actual_start_date: index === 0 ? today : null,
     responsible_user_id: userId,
     notes: "",
     last_updated_by: userId,
@@ -203,7 +202,11 @@ export async function updateProjectStage(
   const lastUpdatedAt = updates.last_updated_at ?? now;
   const { error } = await supabase
     .from("project_stages")
-    .update({ ...updates, last_updated_by: lastUpdatedBy, last_updated_at: lastUpdatedAt })
+    .update({
+      ...updates,
+      last_updated_by: lastUpdatedBy,
+      last_updated_at: lastUpdatedAt,
+    })
     .eq("id", stageId);
 
   if (error) {

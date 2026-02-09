@@ -314,88 +314,89 @@ export default function Users() {
                 جاري تحميل الموظفين...
               </div>
             ) : (
-            <Table>
-              <TableHeader className="bg-muted/50">
-                <TableRow>
-                  <TableHead className="text-right">الموظف</TableHead>
-                  <TableHead className="text-right">الدور الوظيفي</TableHead>
-                  <TableHead className="text-right">الحالة</TableHead>
-                  <TableHead className="text-left">الإجراءات</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredUsers.length > 0 ? (
-                  filteredUsers.map((user) => (
-                    <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                            {user.name.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="font-semibold">{user.name}</div>
-                            <div className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Mail className="w-3 h-3" />
-                              {user.email || `${user.id}@office.com`}
+              <Table>
+                <TableHeader className="bg-muted/50">
+                  <TableRow>
+                    <TableHead className="text-right">الموظف</TableHead>
+                    <TableHead className="text-right">الدور الوظيفي</TableHead>
+                    <TableHead className="text-right">الحالة</TableHead>
+                    <TableHead className="text-left">الإجراءات</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers.length > 0 ? (
+                    filteredUsers.map((user) => (
+                      <TableRow key={user.id} className="hover:bg-muted/30 transition-colors">
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                              {user.name.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="font-semibold">{user.name}</div>
+                              <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Mail className="w-3 h-3" />
+                                {user.email || `${user.id}@office.com`}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="font-medium">
-                          {getRoleLabel(user.role)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            checked={user.is_active}
-                            onCheckedChange={() => handleToggleStatus(user.id)}
-                          />
-                          <span className={user.is_active ? "text-green-600 text-sm" : "text-muted-foreground text-sm"}>
-                            {user.is_active ? "نشط" : "معطل"}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-left">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => openEditDialog(user)} className="gap-2 cursor-pointer">
-                              <Edit2 className="w-4 h-4" />
-                              تعديل البيانات
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            {isManager && (
-                            <DropdownMenuItem 
-                              className={user.is_active ? "text-destructive gap-2 cursor-pointer" : "text-green-600 gap-2 cursor-pointer"}
-                              onClick={() => handleToggleStatus(user.id)}
-                            >
-                              {user.is_active ? (
-                                <><UserX className="w-4 h-4" /> تعطيل الحساب</>
-                              ) : (
-                                <><UserCheck className="w-4 h-4" /> تفعيل الحساب</>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="font-medium">
+                            {getRoleLabel(user.role)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              dir="ltr"
+                              checked={user.is_active}
+                              onCheckedChange={() => handleToggleStatus(user.id)}
+                            />
+                            <span className={user.is_active ? "text-green-600 text-sm" : "text-muted-foreground text-sm"}>
+                              {user.is_active ? "نشط" : "معطل"}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-left">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => openEditDialog(user)} className="gap-2 cursor-pointer">
+                                <Edit2 className="w-4 h-4" />
+                                تعديل البيانات
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              {isManager && (
+                                <DropdownMenuItem
+                                  className={user.is_active ? "text-destructive gap-2 cursor-pointer" : "text-green-600 gap-2 cursor-pointer"}
+                                  onClick={() => handleToggleStatus(user.id)}
+                                >
+                                  {user.is_active ? (
+                                    <><UserX className="w-4 h-4" /> تعطيل الحساب</>
+                                  ) : (
+                                    <><UserCheck className="w-4 h-4" /> تفعيل الحساب</>
+                                  )}
+                                </DropdownMenuItem>
                               )}
-                            </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} className="h-24 text-center">
+                        لا يوجد موظفين يطابقون بحثك.
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={4} className="h-24 text-center">
-                      لا يوجد موظفين يطابقون بحثك.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                  )}
+                </TableBody>
+              </Table>
             )}
           </div>
         </CardContent>

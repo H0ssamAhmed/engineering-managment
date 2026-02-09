@@ -81,9 +81,14 @@ export interface ProjectStage {
   last_updated_at?: string;
   planned_start_date?: string;
   planned_end_date?: string;
-  actual_start_date?: string | null;
-  actual_end_date?: string | null;
 }
+export type ProjectStatus = "active" | "completed" | "cancelled" | "paused";
+export const ProjectStatusEnum = {
+  active: "نشط",
+  completed: "مكتمل",
+  cancelled: "ملغي",
+  paused: "متوقف",
+};
 
 export interface Project {
   id: string;
@@ -96,7 +101,7 @@ export interface Project {
   client_id: string;
   created_at: string;
   updated_at: string;
-  status: "active" | "completed" | "cancelled" | "paused";
+  status: ProjectStatus;
 }
 
 export type ProjectWithStages = Project & { stages: ProjectStage[] };

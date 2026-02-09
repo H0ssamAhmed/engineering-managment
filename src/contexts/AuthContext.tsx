@@ -67,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // الاستماع لتغييرات حالة تسجيل الدخول (دخول، خروج، تغيير كلمة مرور)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
       console.log("Auth State Change Event:", event);
+      console.log(currentSession);
 
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
@@ -91,8 +92,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       const { error } = await supabase.auth.signInWithPassword({ email, password });
 
+
       if (error) {
         setLoading(false);
+
         return { error: new Error(error.message) };
       }
 
