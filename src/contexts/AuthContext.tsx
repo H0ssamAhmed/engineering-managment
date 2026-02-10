@@ -21,7 +21,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // دالة جلب البروفايل من جدول public.users
   const fetchProfile = async (userId: string): Promise<User | null> => {
     try {
       const { data, error } = await supabase
@@ -42,45 +41,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // دالة لتهيئة الحالة عند تشغيل التطبيق أول مرة
+    // Initialize session on mount
     const initialize = async () => {
       try {
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
-
-        setSession(initialSession);
-        setUser(initialSession?.user ?? null);
-
-        if (initialSession?.user) {
-          const p = await fetchProfile(initialSession.user.id);
-          setProfile(p);
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (!session) {
+          console.error("Session error:", error || "Ssession expired");
+          // localStorage.clear();
+          setLoading(false);
+          return;
         }
+        const profile = await fetchProfile(session?.user?.id);
+
+        setSession(session);
+        setUser(session?.user ?? null);
+        setProfile(profile);
+
+
+        // if (initialSession?.user) {
+        //   const p = await fetchProfile(initialSession.user.id);
+        // }
       } catch (err) {
         console.error("Auth initialization error:", err);
       } finally {
-        // ننهي حالة التحميل دائماً سواء نجح الطلب أو فشل
         setLoading(false);
       }
     };
 
-    initialize();
+    initialize(); // IMPORTANT: Uncomment this!
 
-    // الاستماع لتغييرات حالة تسجيل الدخول (دخول، خروج، تغيير كلمة مرور)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
-      console.log("Auth State Change Event:", event);
-      console.log(currentSession);
-
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-
-      if (currentSession?.user) {
-        const p = await fetchProfile(currentSession.user.id);
-        setProfile(p);
-      } else {
-        setProfile(null);
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, currentSession) => {
+        // This will use for logout event later
       }
-
-      setLoading(false);
-    });
+    );
 
     return () => {
       subscription.unsubscribe();
@@ -90,16 +85,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-
+      const { data: { session, user }, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
       if (error) {
         setLoading(false);
-
         return { error: new Error(error.message) };
       }
+      const profile = await fetchProfile(session?.user?.id);
 
-      // ملاحظة: لا نضع setLoading(false) هنا لأن onAuthStateChange سيتكفل بالأمر
+      setProfile(profile)
+      setSession(session)
+      setUser(user)
+      setLoading(false);
+
       return { error: null };
     } catch (err) {
       setLoading(false);
@@ -121,7 +122,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // التحقق من دور المستخدم (المدير)
   const isManager = profile?.role === "MANAGER";
 
   return (

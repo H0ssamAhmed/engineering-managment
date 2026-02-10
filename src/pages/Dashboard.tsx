@@ -44,7 +44,6 @@ const STAGE_LABELS: Record<string, string> = {
 
 export default function Dashboard() {
   const { stats, logs, projects } = useProjects();
-  console.log(stats);
 
   // Prepare data for the stage distribution chart
   const chartData = Object.entries(stats.stageDistribution).map(([status, count]) => ({

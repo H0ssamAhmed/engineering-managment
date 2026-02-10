@@ -8,8 +8,9 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { session, loading } = useAuth();
-  console.log(session);
-  console.log(loading);
+
+
+
 
   const location = useLocation();
 

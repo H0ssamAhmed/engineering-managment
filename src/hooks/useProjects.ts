@@ -52,10 +52,6 @@ export const useProjects = () => {
           fetchClients(),
           fetchProjectLogs(),
         ]);
-      console.log(projectsData);
-      console.log(stagesData);
-      console.log(clientsData);
-      console.log(logsData);
 
       setProjects(projectsData);
       setStages(stagesData);

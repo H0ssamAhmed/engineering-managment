@@ -11,10 +11,17 @@ import { useToast } from "@/components/ui/use-toast";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState<boolean>(true)
   const [submitting, setSubmitting] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, session, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  // React.useEffect(() => {
+  //   if (session) {
+
+  //     navigate("/");
+  //   }
+  // }, [session, user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +34,8 @@ export default function Login() {
         description: error.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
         variant: "destructive",
       });
+      setSubmitting(false);
+
     } else {
       setSubmitting(false);
 
@@ -65,12 +74,23 @@ export default function Login() {
               <Label htmlFor="password">كلمة المرور</Label>
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
               />
+            </div>
+            <div
+              className="flex items-center  gap-2 justify-start"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <Input type="checkbox"
+                className="w-4 h-4"
+                checked={showPassword}
+
+              />
+              <Label>اظهار كلمة المرور</Label>
             </div>
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting ? (
