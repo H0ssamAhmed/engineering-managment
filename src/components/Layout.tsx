@@ -109,7 +109,7 @@ export function Layout({ children }: LayoutProps) {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 overflow-hidden">
-            <p className="text-sm font-semibold truncate">{profile?.name || "المستخدم"}</p>
+            <p className="text-sm font-semibold truncate">{profile?.name ? `م. ${profile?.name}` : "المستخدم"}</p>
             <p className="text-xs text-muted-foreground truncate">
               {profile?.role ? getRoleLabel(profile.role) : "مدير المكتب"}
             </p>

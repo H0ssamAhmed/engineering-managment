@@ -1,5 +1,4 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -14,6 +13,7 @@ import Clients from "@/pages/Clients";
 import Users from "@/pages/Users";
 import ProjectsDetails from "./pages/ProjectsDetails";
 import NotFound from "./pages/not-found/NotFound";
+import { Toaster } from "react-hot-toast";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,8 +30,7 @@ const App = () => {
       <AuthProvider>
         <TooltipProvider>
           <div dir="rtl" lang="ar" className="min-h-screen bg-background font-sans antialiased selection:bg-primary/20 selection:text-primary">
-            <Toaster />
-            <Sonner />
+
             <BrowserRouter>
               <Routes>
                 <Route path={ROUTE_PATHS.LOGIN} element={<Login />} />
@@ -54,6 +53,17 @@ const App = () => {
               </Routes>
             </BrowserRouter>
           </div>
+          <Toaster
+            position="top-center"
+            reverseOrder={false}
+            gutter={8}
+            toastOptions={{
+              duration: 5000,
+              removeDelay: 1000,
+              success: { duration: 3000 },
+            }}
+          />
+
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>

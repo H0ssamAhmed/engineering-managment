@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { User as SupabaseUser, Session } from "@supabase/supabase-js";
 import { supabase } from "../../supabase/supabase";
 import type { User } from "@/lib/index";
+import toast from "react-hot-toast";
 
 interface AuthContextType {
   session: Session | null;
@@ -72,9 +73,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        // This will use for logout event later
-      }
+      // async (event, currentSession) => {
+      //   // This will use for logout event later
+      // }
     );
 
     return () => {
@@ -112,11 +113,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       await supabase.auth.signOut();
+      toast.success("تم تسجيل الخروج بنجاح، سنفتقدك كثيرا ✅");
+
+
       setProfile(null);
       setSession(null);
       setUser(null);
     } catch (err) {
       console.error("Error signing out:", err);
+      toast.error(err.message || "❌ حدث خطأ، حاول مرة اخري")
+
+
     } finally {
       setLoading(false);
     }

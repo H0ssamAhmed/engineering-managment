@@ -6,22 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Briefcase, Loader2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "react-hot-toast";
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState<boolean>(true)
   const [submitting, setSubmitting] = useState(false);
-  const { signIn, session, user } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  // React.useEffect(() => {
-  //   if (session) {
 
-  //     navigate("/");
-  //   }
-  // }, [session, user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,17 +24,11 @@ export default function Login() {
     const { error } = await signIn(email, password);
 
     if (error) {
-      toast({
-        title: "فشل تسجيل الدخول",
-        description: error.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-        variant: "destructive",
-      });
+      toast.error(error.message || "البريد الإلكتروني أو كلمة المرور غير صحيحة.")
       setSubmitting(false);
-
     } else {
       setSubmitting(false);
-
-      toast({ title: "تم تسجيل الدخول بنجاح" });
+      toast.success("تم تسجيل الدخول بنجاح ✅");
       navigate("/");
     }
   };
