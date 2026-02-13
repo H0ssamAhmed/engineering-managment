@@ -30,39 +30,63 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { updateProjectStage } from "@/api/projects";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 interface ProjectStageAccordionProps {
   projectId: string;
   stages: ProjectStage[];
-  onStageUpdate: (stageId: string, updates: Partial<ProjectStage>) => void;
 }
 
 export function ProjectStageAccordion({
   projectId,
   stages,
-  onStageUpdate,
 }: ProjectStageAccordionProps) {
-  const sortedStages = [...stages].sort((a, b) => a.stage_order - b.stage_order);
+  const queryClient = useQueryClient()
+  const { profile } = useAuth()
+  const sortedStages = [...stages]//.sort((a, b) => a.stage_order - b.stage_order);
+  const { mutate: updateStage, isPending } = useMutation({
+    mutationFn: ({ stageId, payload }: { stageId: string, payload: unknown, StageName: string }) =>
+      updateProjectStage(stageId, payload, profile.name),
+    onSuccess: (data) => {
+      console.log(data);
 
+      // const StageName=stages.find(stage=>stage.id==)
+
+      // دي اللي بتخلي البيانات تتحدث فوراً في الصفحة
+      queryClient.invalidateQueries({ queryKey: [projectId] });
+      toast.success(" تم تحديث المرحلة بنجاح ");
+    },
+    onError: (error) => {
+      toast.error("حصل مشكلة أثناء التحديث:" + error);
+      console.error("حصل مشكلة أثناء التحديث:", error);
+    }
+  });
   // Find the current active stage to expand it by default
   const activeStage = sortedStages.find((s) => s.status === "in_progress") || sortedStages.find((s) => s.status === "not_started") || sortedStages[0];
   const [expandedValue, setExpandedValue] = useState<string | undefined>(activeStage?.id);
+  const handleStatusChange = (stageId: string, newStatus: StageStatusValue, StageName: string) => {
+    updateStage({
+      stageId,
+      payload: { status: newStatus },
+      StageName
+    })
+  }
 
-  // Update expanded value if the active stage changes (e.g., auto-progression)
-  // useEffect(() => {
-  //   const currentActive = sortedStages.find((s) => s.status === "in_progress");
-  //   if (currentActive) {
-  //     setExpandedValue(currentActive.id);
-  //   }
-  // }, [sortedStages]);
 
-  const handleStatusChange = (stageId: string, newStatus: StageStatusValue) => {
-    onStageUpdate(stageId, { status: newStatus });
+
+
+  const handleSaveNotes = async (stageId: string, notes: string, StageName: string) => {
+    updateStage({
+      stageId,
+      payload: { notes: notes },
+      StageName
+    })
   };
 
-  const handleSaveNotes = (stageId: string, notes: string) => {
-    onStageUpdate(stageId, { notes });
-  };
+
 
   return (
     <div className="w-full space-y-4" dir="rtl" data-project-id={projectId}>
@@ -132,7 +156,7 @@ export function ProjectStageAccordion({
                       <Select
                         value={stage.status}
                         onValueChange={(value: StageStatusValue) =>
-                          handleStatusChange(stage.id, value)
+                          handleStatusChange(stage.id, value, stage.name)
                         }
                       >
                         <SelectTrigger className="w-full bg-background">
@@ -174,15 +198,8 @@ export function ProjectStageAccordion({
                     <Label className="text-sm font-semibold">ملاحظات المرحلة</Label>
                     <StageNotesField
                       initialNotes={stage.notes}
-                      onSave={(notes) => handleSaveNotes(stage.id, notes)}
+                      onSave={(notes) => handleSaveNotes(stage.id, notes, stage.name)}
                     />
-                    <div className="mt-auto flex gap-4 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        التخطيط:
-                      </div>
-
-                    </div>
                   </div>
                 </div>
               </AccordionContent>
@@ -204,7 +221,7 @@ function StageNotesField({
   initialNotes: string;
   onSave: (notes: string) => void
 }) {
-  const [notes, setNotes] = useState(initialNotes);
+  const [notes, setNotes] = useState(initialNotes || "");
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {

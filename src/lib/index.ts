@@ -79,8 +79,6 @@ export interface ProjectStage {
   notes: string;
   last_updated_by?: string;
   last_updated_at?: string;
-  planned_start_date?: string;
-  planned_end_date?: string;
 }
 export type ProjectStatus = "active" | "completed" | "cancelled" | "paused";
 export const ProjectStatusEnum = {

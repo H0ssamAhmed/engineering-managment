@@ -22,12 +22,14 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { ROUTE_PATHS, getRoleLabel } from "@/lib/index";
-
+import { format } from "date-fns";
+import { ar } from 'date-fns/locale'; // استيراد ملف اللغة العربية
 interface LayoutProps {
   children?: React.ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
+  const today = new Date();
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -167,9 +169,9 @@ export function Layout({ children }: LayoutProps) {
                 <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full border-2 border-background"></span>
               </Button>
               <div className="h-8 w-px bg-border mx-2"></div>
-              <div className="hidden sm:flex flex-col items-end">
+              <div className="hidden sm:flex flex-col items-start">
                 <span className="text-xs text-muted-foreground">اليوم هو</span>
-                <span className="text-sm font-medium">الخميس، 6 فبراير 2026</span>
+                <span className="text-sm font-medium">{format(today, 'EEEE', { locale: ar }) + " - " + format(today, 'dd MMMM yyyy', { locale: ar })}</span>
               </div>
             </div>
           </div>

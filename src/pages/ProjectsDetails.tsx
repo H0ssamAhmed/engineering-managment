@@ -3,13 +3,25 @@ import { useProjects } from "@/hooks/useProjects";
 import { useParams, Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { fetchProjectById, updateProjectStage } from "@/api/projects";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { ProjectStage } from "@/lib";
 
 export default function ProjectsDetails() {
   const { id } = useParams();
-  const { projects, stages, updateStage, loading } = useProjects();
-  const projectDetails = projects.find((p) => p.id === id);
+  const { data: projectDetails, isLoading } = useQuery({
+    queryKey: [id], queryFn: () => fetchProjectById(id)
+  })
+  const { data, error, isPending } = useMutation({
+    mutationKey: [id], mutationFn: (
+      stageId: Partial<Pick<ProjectStage, "id">>,
+      updates: Partial<ProjectStage>,
+      userId: string,) => updateProjectStage(stageId, updates, userId)
+  })
+  console.log(data);
 
-  if (loading) {
+  const { updateStage } = useProjects()
+  if (isLoading) {
     return (
       <div className="py-12 text-center text-muted-foreground">
         جاري التحميل...
@@ -31,7 +43,7 @@ export default function ProjectsDetails() {
     );
   }
 
-  const projectStages = stages.filter((s) => s.project_id === projectDetails.id);
+
 
   return (
     <div className="space-y-6 pb-12" dir="rtl">
@@ -45,10 +57,8 @@ export default function ProjectsDetails() {
       <h1 className="text-2xl font-bold">{projectDetails.name}</h1>
       <ProjectStageAccordion
         projectId={projectDetails.id}
-        stages={projectStages}
-        onStageUpdate={(stageId, updates) =>
-          updateStage(projectDetails.id, stageId, updates)
-        }
+        stages={projectDetails.stages}
+
       />
     </div>
   );

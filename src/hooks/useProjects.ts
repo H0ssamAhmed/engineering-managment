@@ -25,49 +25,90 @@ import {
   deleteClient as deleteClientApi,
 } from "../api/clients";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQueries, useQuery } from "@tanstack/react-query";
 
 const CURRENT_USER_ID = "82a9eeb0-ddec-470d-ac1c-7e4bb6efa83f";
+const loadData = async () => {
+  try {
+    const [projectsData, stagesData, clientsData, logsData] = await Promise.all(
+      [
+        fetchProjects(),
+        fetchProjectStages(),
+        fetchClients(),
+        fetchProjectLogs(),
+      ],
+    );
+  } catch (err) {
+    console.error("Error loading data:", err);
+    // setError(err instanceof Error ? err.message : "فشل تحميل البيانات");
+  } finally {
+    // setLoading(false);
+  }
+};
 
-/**
- * Custom hook for managing project state with Supabase.
- * Fetches real data from the database and persists changes.
- */
 export const useProjects = () => {
   const { profile } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [stages, setStages] = useState<ProjectStage[]>([]);
+  const [stages, setStages] = useState<ProjectStage[] | unknown>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [logs, setLogs] = useState<ProjectLog[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [projectsData, stagesData, clientsData, logsData] =
-        await Promise.all([
-          fetchProjects(),
-          fetchProjectStages(),
-          fetchClients(),
-          fetchProjectLogs(),
-        ]);
-
-      setProjects(projectsData);
-      setStages(stagesData);
-      setClients(clientsData);
-      setLogs(logsData);
-    } catch (err) {
-      console.error("Error loading data:", err);
-      setError(err instanceof Error ? err.message : "فشل تحميل البيانات");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
+  const data =
+    //  { projects, projectStages, clients, projectLogs, isLoading, isError }
+    useQueries({
+      queries: [
+        { queryKey: ["projects"], queryFn: fetchProjects },
+        { queryKey: ["projectStages"], queryFn: fetchProjects },
+        { queryKey: ["clients"], queryFn: fetchClients },
+        { queryKey: ["projectLogs"], queryFn: fetchProjectLogs },
+      ],
+      combine(results) {
+        return {
+          projects: results[0].data,
+          projectStages: results[1].data,
+          clients: results[2].data,
+          projectLogs: results[3].data,
+          // ممكن كمان تجمع حالة التحميل لكل الطلبات في متغير واحد
+          isLoading: results.some((res) => res.isLoading),
+          isError: results.some((res) => res.isError),
+        };
+      },
+    });
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (!data.isError && !data.isLoading) {
+      setProjects(data.projects);
+      setStages(data?.projectStages);
+      setClients(data.clients);
+      setLogs(data.projectLogs);
+    }
+  }, [data]);
+
+  // const loadData = useCallback(async () => {
+  //   setLoading(true);
+  //   setError(null);
+  //   try {
+  // const [projectsData, stagesData, clientsData, logsData] =
+  //   await Promise.all([
+  //     fetchProjects(),
+  //     fetchProjectStages(),
+  //     fetchClients(),
+  //     fetchProjectLogs(),
+  //   ]);
+  // setProjects(projectsData);
+  // setStages(stagesData);
+  // setClients(clientsData);
+  // setLogs(logsData);
+  //   } catch (err) {
+  //     console.error("Error loading data:", err);
+  //     setError(err instanceof Error ? err.message : "فشل تحميل البيانات");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   loadData();
+  // }, [loadData]);
 
   const addLog = useCallback(
     async (log: Omit<ProjectLog, "id" | "created_at">) => {
@@ -291,8 +332,8 @@ export const useProjects = () => {
     clients,
     logs,
     stats,
-    loading,
-    error,
+    isLoading: data.isLoading,
+    isError: data.isError,
     loadData,
     updateStage,
     createProject,
