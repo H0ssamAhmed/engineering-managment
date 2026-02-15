@@ -43,10 +43,10 @@ const App = () => {
                   }
                 >
                   <Route index element={<Dashboard />} />
-                  <Route path="projects" element={<Projects />} />
-                  <Route path="projects/:id" element={<ProjectsDetails />} />
-                  <Route path="clients" element={<Clients />} />
-                  <Route path="users" element={<Users />} />
+                  <Route path={ROUTE_PATHS.PROJECTS} element={<Projects />} />
+                  <Route path={ROUTE_PATHS.PROJECTS + "/:id"} element={<ProjectsDetails />} />
+                  <Route path={ROUTE_PATHS.CLIENTS} element={<Clients />} />
+                  <Route path={ROUTE_PATHS.USERS} element={<Users />} />
                   <Route path="*" element={<NotFound />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/" replace />} />
