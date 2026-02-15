@@ -27,12 +27,11 @@ import {
 } from "recharts";
 import { motion } from "framer-motion";
 import { springPresets, fadeInUp, staggerContainer, staggerItem } from "@/lib/motion";
-
 const STAGE_COLORS = {
-  not_started: "oklch(0.95 0.01 255)",
-  in_progress: "oklch(0.52 0.14 255)",
-  waiting: "oklch(0.72 0.15 65)",
-  completed: "oklch(0.65 0.13 145)",
+  not_started: "#E2E8F0",
+  in_progress: "#3B82F6",
+  waiting: "#F59E0B",
+  completed: "#10B981",
 };
 
 const STAGE_LABELS: Record<string, string> = {
@@ -124,7 +123,12 @@ export default function Dashboard() {
                     />
                     <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={50}>
                       {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={STAGE_COLORS[entry.status as keyof typeof STAGE_COLORS] || "var(--primary)"} />
+                        <Cell
+                          style={{ backgroundColor: STAGE_COLORS[entry.status as keyof typeof STAGE_COLORS] }}
+                          key={`cell-${index}`}
+                          className={STAGE_COLORS[entry.status as keyof typeof STAGE_COLORS]}
+                          fill={STAGE_COLORS[entry.status as keyof typeof STAGE_COLORS] || "var(--primary)"}
+                        />
                       ))}
                     </Bar>
 

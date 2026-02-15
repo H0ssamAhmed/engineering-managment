@@ -314,9 +314,9 @@ export const useProjects = () => {
     pausedProjects: projects.filter((p) => p.status === "paused").length,
     activeProjects: projects.filter((p) => p.status === "active").length,
     completedProjects: projects.filter((p) => p.status === "completed").length,
-    lateProjects: projects.filter((p) => {
-      return p.status === "active";
-    }).length,
+    cancelledProjects: projects.filter((p) => p.status === "cancelled").length,
+    lateProjects: projects.filter((p) => p.status === "active").length,
+
     stageDistribution: stages.reduce(
       (acc, stage) => {
         acc[stage.status] = (acc[stage.status] || 0) + 1;

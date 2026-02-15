@@ -1,30 +1,34 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ROUTE_PATHS } from "@/lib/index";
+import { useEffect } from "react";
+import LoadingPage from "./LoadingPage";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { session, loading } = useAuth();
-
-
-
+  const { session, loading, isSignedIn } = useAuth();
+  // const navigate = useNavigate()
+  console.log(session);
+  console.log(isSignedIn);
 
   const location = useLocation();
 
+
+
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">جاري التحميل...</div>
-      </div>
+      <LoadingPage />
     );
   }
 
   if (!session) {
     return <Navigate to={ROUTE_PATHS.LOGIN} state={{ from: location }} replace />;
   }
+
 
   return <>{children}</>;
 }

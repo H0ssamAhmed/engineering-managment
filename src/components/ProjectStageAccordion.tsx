@@ -34,6 +34,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { updateProjectStage } from "@/api/projects";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import UpdateStageSkeleton from "./UpdateStageSkeleton";
 
 interface ProjectStageAccordionProps {
   projectId: string;
@@ -46,28 +47,28 @@ export function ProjectStageAccordion({
 }: ProjectStageAccordionProps) {
   const queryClient = useQueryClient()
   const { profile } = useAuth()
+  const [currentUpdatedId, setCurrentUpdatedId] = useState<string>("")
   const sortedStages = [...stages]//.sort((a, b) => a.stage_order - b.stage_order);
   const { mutate: updateStage, isPending } = useMutation({
     mutationFn: ({ stageId, payload }: { stageId: string, payload: unknown, StageName: string }) =>
       updateProjectStage(stageId, payload, profile.name),
-    onSuccess: (data) => {
-      console.log(data);
-
-      // const StageName=stages.find(stage=>stage.id==)
-
-      // دي اللي بتخلي البيانات تتحدث فوراً في الصفحة
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [projectId] });
       toast.success(" تم تحديث المرحلة بنجاح ");
+      setCurrentUpdatedId("")
     },
     onError: (error) => {
       toast.error("حصل مشكلة أثناء التحديث:" + error);
       console.error("حصل مشكلة أثناء التحديث:", error);
+      setCurrentUpdatedId("")
+
     }
   });
   // Find the current active stage to expand it by default
   const activeStage = sortedStages.find((s) => s.status === "in_progress") || sortedStages.find((s) => s.status === "not_started") || sortedStages[0];
   const [expandedValue, setExpandedValue] = useState<string | undefined>(activeStage?.id);
   const handleStatusChange = (stageId: string, newStatus: StageStatusValue, StageName: string) => {
+    setCurrentUpdatedId(stageId)
     updateStage({
       stageId,
       payload: { status: newStatus },
@@ -79,6 +80,8 @@ export function ProjectStageAccordion({
 
 
   const handleSaveNotes = async (stageId: string, notes: string, StageName: string) => {
+    setCurrentUpdatedId(stageId)
+
     updateStage({
       stageId,
       payload: { notes: notes },
@@ -147,62 +150,64 @@ export function ProjectStageAccordion({
                 </div>
               </AccordionTrigger>
 
-              <AccordionContent className="pt-2 pb-6 border-t">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                  {/* Right Column: Status & Updates */}
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold">حالة المرحلة</Label>
-                      <Select
-                        value={stage.status}
-                        onValueChange={(value: StageStatusValue) =>
-                          handleStatusChange(stage.id, value, stage.name)
-                        }
-                      >
-                        <SelectTrigger className="w-full bg-background">
-                          <SelectValue placeholder="اختر الحالة" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.values(STAGE_STATUS).map((status) => (
-                            <SelectItem key={status.value} value={status.value}>
-                              <div className="flex items-center gap-2">
-                                <div className={cn("w-2 h-2 rounded-full", status.color.split(' ')[1])} />
-                                {status.label}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+              {isPending && currentUpdatedId == stage.id ?
+                <UpdateStageSkeleton />
+                : <AccordionContent className="pt-2 pb-6 border-t">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+                    {/* Right Column: Status & Updates */}
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold">حالة المرحلة</Label>
+                        <Select
+                          value={stage.status}
+                          onValueChange={(value: StageStatusValue) =>
+                            handleStatusChange(stage.id, value, stage.name)
+                          }
+                        >
+                          <SelectTrigger className="w-full bg-background">
+                            <SelectValue placeholder="اختر الحالة" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.values(STAGE_STATUS).map((status) => (
+                              <SelectItem key={status.value} value={status.value}>
+                                <div className="flex items-center gap-2">
+                                  <div className={cn("w-2 h-2 rounded-full", status.color.split(' ')[1])} />
+                                  {status.label}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="p-4 rounded-lg bg-muted/30 border border-dashed border-muted-foreground/20 space-y-3">
+                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                          <Info className="w-4 h-4" />
+                          معلومات التحديث الأخير
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-xs">
+                          <div className="space-y-1">
+                            <span className="text-muted-foreground block">بواسطة:</span>
+                            <span className="font-medium">{stage.last_updated_by || "النظام"}</span>
+                          </div>
+                          <div className="space-y-1">
+                            <span className="text-muted-foreground block">التاريخ والوقت:</span>
+                            <span className="font-medium">{formatDateTime(stage.last_updated_at)}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="p-4 rounded-lg bg-muted/30 border border-dashed border-muted-foreground/20 space-y-3">
-                      <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                        <Info className="w-4 h-4" />
-                        معلومات التحديث الأخير
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 text-xs">
-                        <div className="space-y-1">
-                          <span className="text-muted-foreground block">بواسطة:</span>
-                          <span className="font-medium">{stage.last_updated_by || "النظام"}</span>
-                        </div>
-                        <div className="space-y-1">
-                          <span className="text-muted-foreground block">التاريخ والوقت:</span>
-                          <span className="font-medium">{formatDateTime(stage.last_updated_at)}</span>
-                        </div>
-                      </div>
+                    {/* Left Column: Notes */}
+                    <div className="space-y-2 flex flex-col">
+                      <Label className="text-sm font-semibold">ملاحظات المرحلة</Label>
+                      <StageNotesField
+                        initialNotes={stage.notes}
+                        onSave={(notes) => handleSaveNotes(stage.id, notes, stage.name)}
+                      />
                     </div>
                   </div>
-
-                  {/* Left Column: Notes */}
-                  <div className="space-y-2 flex flex-col">
-                    <Label className="text-sm font-semibold">ملاحظات المرحلة</Label>
-                    <StageNotesField
-                      initialNotes={stage.notes}
-                      onSave={(notes) => handleSaveNotes(stage.id, notes, stage.name)}
-                    />
-                  </div>
-                </div>
-              </AccordionContent>
+                </AccordionContent>}
             </AccordionItem>
           );
         })}
