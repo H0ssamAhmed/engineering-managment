@@ -2,13 +2,15 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ROUTE_PATHS } from "@/lib/index";
 import LoadingPage from "./LoadingPage";
+import toast from "react-hot-toast";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  allowedRoles: string
 }
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { session, loading } = useAuth();
+export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+  const { session, loading, profile } = useAuth();
   const location = useLocation();
 
 
@@ -23,7 +25,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   if (!session) {
     return <Navigate to={ROUTE_PATHS.LOGIN} state={{ from: location }} replace />;
   }
-
+  if (allowedRoles && !allowedRoles.includes(profile.role)) {
+    toast.error("المدير فقط من لديه صلاحية لهذه الصفحة")
+    return <Navigate to="/" replace />;
+  }
 
   return <>{children}</>;
 }

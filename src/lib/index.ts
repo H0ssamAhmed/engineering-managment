@@ -1,9 +1,12 @@
+import { LayoutDashboard, Briefcase, Users, UserSquare } from "lucide-react";
+
 export const ROUTE_PATHS = {
   DASHBOARD: "/",
   LOGIN: "/login",
   PROJECTS: "/projects",
   CLIENTS: "/clients",
   USERS: "/users",
+  USER_DATA: "/users-info",
 } as const;
 
 export const USER_ROLES = {
@@ -161,3 +164,31 @@ export const getRoleLabel = (role: UserRole) => {
 export const getProjectTypeLabel = (type: ProjectType) => {
   return PROJECT_TYPES[type] || "غير معروف";
 };
+
+export const navigation = [
+  {
+    name: "لوحة التحكم",
+    href: ROUTE_PATHS.DASHBOARD,
+    icon: LayoutDashboard,
+  },
+  {
+    name: "المشاريع الهندسية",
+    href: ROUTE_PATHS.PROJECTS,
+    icon: Briefcase,
+  },
+  {
+    name: "قاعدة العملاء",
+    href: ROUTE_PATHS.CLIENTS,
+    icon: UserSquare,
+  },
+  {
+    name: "إدارة الموظفين",
+    href: ROUTE_PATHS.USERS,
+    icon: Users,
+  },
+  {
+    name: "معلوماتي",
+    href: ROUTE_PATHS.USER_DATA,
+    icon: Users,
+  },
+];

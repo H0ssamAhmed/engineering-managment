@@ -23,6 +23,7 @@ bun-debug.log*
 logs/
 *.log
 report.[0-9]*.json
+user.md
 
 # --- Runtime data / pids ---
 pids/

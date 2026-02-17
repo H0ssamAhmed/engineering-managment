@@ -37,7 +37,7 @@ const App = () => {
                 <Route
                   path="/"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute allowedRoles="">
                       <Layout />
                     </ProtectedRoute>
                   }
@@ -46,6 +46,15 @@ const App = () => {
                   <Route path={ROUTE_PATHS.PROJECTS} element={<Projects />} />
                   <Route path={ROUTE_PATHS.PROJECTS + "/:id"} element={<ProjectsDetails />} />
                   <Route path={ROUTE_PATHS.CLIENTS} element={<Clients />} />
+                  <Route path={ROUTE_PATHS.USER_DATA} element={<Clients />} />
+                  <Route
+                    path={ROUTE_PATHS.USERS}
+                    element={
+                      <ProtectedRoute allowedRoles={"MANAGER"}>
+                        <Users />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route path={ROUTE_PATHS.USERS} element={<Users />} />
                   <Route path="*" element={<NotFound />} />
                 </Route>

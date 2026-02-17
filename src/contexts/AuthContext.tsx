@@ -70,15 +70,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         setProfile(profile);
-        console.log(profile);
         setIsSignedIn(true)
 
 
-        if (user) {
-          const p = await fetchProfile(user.id);
-          console.log(p);
-
-        }
       } catch (err) {
         console.error("Auth initialization error:", err);
       } finally {
@@ -110,8 +104,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         password
       });
-
-      console.log("data " + session);
 
       setLoading(false);
 
