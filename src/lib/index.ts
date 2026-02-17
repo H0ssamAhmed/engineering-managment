@@ -7,15 +7,16 @@ export const ROUTE_PATHS = {
 } as const;
 
 export const USER_ROLES = {
-  MANAGER: "مدير المكتب",
-  SURVEYOR: "مساح",
   ARCHITECT: "مهندس معماري",
+  ARCHITECTURAL_DESIGNER: "مصمم معماري",
   STRUCTURAL: "مهندس إنشائي",
+  SURVEYOR: "مساح",
   FACADE_DESIGNER: "مصمم واجهات",
   MECHANICAL: "مهندس ميكانيك",
+  BALADI_SUBMITTER: "مسؤول رفع معاملات بلدي",
   BALADI: "معقب بلدي",
+  MANAGER: "مدير المكتب",
 } as const;
-
 export type UserRole = keyof typeof USER_ROLES;
 
 export const STAGE_STATUS = {

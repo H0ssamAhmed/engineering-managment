@@ -21,14 +21,27 @@ export type CreateUserInput = {
   role: UserRole;
 };
 
-/**
- * Creates a new user. Should only be called by managers.
- * Uses Supabase Edge Function or direct signUp. For admin creation,
- * the Edge Function create-user should be used (validates manager role).
- */
 export async function createUser(input: CreateUserInput): Promise<User | null> {
+  // Refresh session so the access_token is valid (getSession() can return expired token)
+  const { data: refreshData, error: refreshError } =
+    await supabase.auth.refreshSession();
+
+  const session = refreshData?.session ?? (await supabase.auth.getSession()).data
+    ?.session;
+
+  if (!session) {
+    console.error(
+      "No active session - user must be logged in!",
+      refreshError?.message
+    );
+    return null;
+  }
+
   const { data, error } = await supabase.functions.invoke("create-user", {
     body: input,
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
   });
 
   if (error) {
@@ -43,10 +56,9 @@ export async function createUser(input: CreateUserInput): Promise<User | null> {
 
   return data?.user as User;
 }
-
 export async function updateUser(
   id: string,
-  updates: Partial<Pick<User, "name" | "role" | "is_active">>
+  updates: Partial<Pick<User, "name" | "role" | "is_active">>,
 ): Promise<User | null> {
   const { data, error } = await supabase
     .from("users")

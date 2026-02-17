@@ -1,7 +1,6 @@
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ROUTE_PATHS } from "@/lib/index";
-import { useEffect } from "react";
 import LoadingPage from "./LoadingPage";
 
 interface ProtectedRouteProps {
@@ -9,11 +8,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { session, loading, isSignedIn } = useAuth();
-  // const navigate = useNavigate()
-  console.log(session);
-  console.log(isSignedIn);
-
+  const { session, loading } = useAuth();
   const location = useLocation();
 
 

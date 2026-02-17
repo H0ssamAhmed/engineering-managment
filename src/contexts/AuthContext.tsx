@@ -70,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         setProfile(profile);
+        console.log(profile);
         setIsSignedIn(true)
 
 
