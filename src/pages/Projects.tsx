@@ -8,7 +8,6 @@ import {
   FolderOpen,
   LayoutGrid,
   List,
-  CheckCircle2,
   Clock,
   Clipboard
 } from "lucide-react";
@@ -68,6 +67,8 @@ export default function Projects() {
 
   const getProjectProgress = (projectId: string) => {
     const projectStages = stages.filter((s) => s.project_id === projectId);
+    console.log(projectStages);
+
     if (projectStages.length === 0) return 0;
     const completed = projectStages.filter((s) => s.status === "completed").length;
     return Math.round((completed / projectStages.length) * 100);
@@ -239,16 +240,6 @@ export default function Projects() {
                           </div>
                           <div className="space-y-2">
 
-                            <div className="flex items-center gap-2 text-sm">
-                              {getProjectProgress(project.id) === 100 ? (
-                                <CheckCircle2 className="w-4 h-4 text-green-500" />
-                              ) : (
-                                <Clock className="w-4 h-4 text-blue-500" />
-                              )}
-                              <span className="font-medium">
-                                الإنجاز: {getProjectProgress(project.id)}%
-                              </span>
-                            </div>
                           </div>
                         </div>
 

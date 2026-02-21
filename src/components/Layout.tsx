@@ -36,11 +36,11 @@ export function Layout({ children }: LayoutProps) {
     <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground border-l border-sidebar-border">
       <div className="p-6 flex items-center gap-3">
         <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
-          <Briefcase size={24} />
+          <img src="/public/image.png" className="object-contain" />
         </div>
         <div>
-          <h1 className="font-bold text-lg leading-none">إتقان الهندسي</h1>
-          <p className="text-xs text-muted-foreground mt-1">نظام إدارة المشاريع</p>
+          <h1 className="font-bold text-lg leading-none">مكتب  انس حلواني </h1>
+          <p className="text-xs text-muted-foreground mt-1"> إدارة المشاريع</p>
         </div>
       </div>
 
