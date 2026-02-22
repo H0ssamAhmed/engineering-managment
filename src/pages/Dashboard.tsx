@@ -43,6 +43,7 @@ const STAGE_LABELS: Record<string, string> = {
 
 export default function Dashboard() {
   const { stats, logs, projects } = useProjects();
+  document.title = "مكتب انس حلواني | لوحة التحكم"
 
   // Prepare data for the stage distribution chart
   const chartData = Object.entries(stats.stageDistribution).map(([status, count]) => ({

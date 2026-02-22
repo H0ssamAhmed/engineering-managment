@@ -14,6 +14,7 @@ import Users from "@/pages/Users";
 import ProjectsDetails from "./pages/ProjectsDetails";
 import NotFound from "./pages/not-found/NotFound";
 import { Toaster } from "react-hot-toast";
+import { ActiveUserGuard } from "./contexts/AcitveUserGurd";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +43,7 @@ const App = () => {
                     </ProtectedRoute>
                   }
                 >
+
                   <Route index element={<Dashboard />} />
                   <Route path={ROUTE_PATHS.PROJECTS} element={<Projects />} />
                   <Route path={ROUTE_PATHS.PROJECTS + "/:id"} element={<ProjectsDetails />} />
@@ -56,6 +58,8 @@ const App = () => {
                     }
                   />
                   <Route path={ROUTE_PATHS.USERS} element={<Users />} />
+
+
                   <Route path="*" element={<NotFound />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/" replace />} />

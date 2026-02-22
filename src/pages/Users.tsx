@@ -29,6 +29,7 @@ import EditUserDialog from "@/components/User/EditUserDialog";
 
 
 export default function Users() {
+  document.title = "مكتب انس حلواني | الموظفين"
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,7 +37,6 @@ export default function Users() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const { isManager } = useAuth();
-  const { toast } = useToast();
 
   const loadUsers = useCallback(async () => {
     setLoading(true);

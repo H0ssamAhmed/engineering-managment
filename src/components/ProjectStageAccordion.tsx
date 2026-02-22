@@ -46,7 +46,7 @@ export function ProjectStageAccordion({
   stages,
 }: ProjectStageAccordionProps) {
   const queryClient = useQueryClient()
-  const { profile } = useAuth()
+  const { profile, isUserActive } = useAuth()
   const [currentUpdatedId, setCurrentUpdatedId] = useState<string>("")
   const sortedStages = [...stages]//.sort((a, b) => a.stage_order - b.stage_order);
   const { mutate: updateStage, isPending } = useMutation({
@@ -68,6 +68,10 @@ export function ProjectStageAccordion({
   const activeStage = sortedStages.find((s) => s.status === "in_progress") || sortedStages.find((s) => s.status === "not_started") || sortedStages[0];
   const [expandedValue, setExpandedValue] = useState<string | undefined>(activeStage?.id);
   const handleStatusChange = (stageId: string, newStatus: StageStatusValue, StageName: string) => {
+    if (!isUserActive) {
+      toast.error("حسابك غير نشط ،يرجي التواصل مع المدير.")
+      return
+    }
     setCurrentUpdatedId(stageId)
     updateStage({
       stageId,
@@ -80,8 +84,11 @@ export function ProjectStageAccordion({
 
 
   const handleSaveNotes = async (stageId: string, notes: string, StageName: string) => {
+    if (!isUserActive) {
+      toast.error("حسابك للقراءة فقط، لا يمكنك التعديل.")
+      return
+    }
     setCurrentUpdatedId(stageId)
-
     updateStage({
       stageId,
       payload: { notes: notes },

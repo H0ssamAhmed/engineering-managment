@@ -31,6 +31,7 @@ export default function ProjectsDetails() {
       </div>
     );
   }
+  document.title = `مكتب انس حلواني | ${projectDetails.name}`
 
   if (!projectDetails) {
     return (

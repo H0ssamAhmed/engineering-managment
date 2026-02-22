@@ -40,14 +40,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ProjectStatus } from "@/lib/index"
+import toast from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext";
 const CURRENT_USER_ID = "u_1"; // Mocking logged in user
 
 export default function Projects() {
+  document.title = "مكتب انس حلواني | المشاريع "
   const { projects, stages, clients, updateStage, createProject, addClient, loading } = useProjects();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const { isUserActive } = useAuth()
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
@@ -73,7 +77,13 @@ export default function Projects() {
     const completed = projectStages.filter((s) => s.status === "completed").length;
     return Math.round((completed / projectStages.length) * 100);
   };
-
+  const handleOpenDialog = () => {
+    if (!isUserActive) {
+      toast.error("حسابك غير نشط ،يرجي التواصل مع المدير.")
+      return
+    }
+    setIsDialogOpen(true)
+  }
   const copyPath = (path: string) => {
     navigator.clipboard.writeText(path)
   };
@@ -88,7 +98,7 @@ export default function Projects() {
           </p>
         </div>
         <Button
-          onClick={() => setIsDialogOpen(true)}
+          onClick={handleOpenDialog}
           className="bg-primary hover:bg-primary/90 text-white gap-2 h-11 px-6"
         >
           <Plus className="w-5 h-5" />

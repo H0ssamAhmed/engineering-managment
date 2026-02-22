@@ -19,8 +19,9 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const { session } = useAuth()
-  const checkSessionChnages = () => {
+  document.title = "مكتب انس حلواني | تسجيل الدخول"
 
+  const checkSessionChnages = () => {
     if (session)
       navigate("/")
   }

@@ -25,6 +25,7 @@ import {
 import { Card } from "@/components/ui/card";
 
 export default function Clients() {
+  document.title = "مكتب انس حلواني | معلوماتي "
   const { clients, addClient, updateClient, removeClient, loading } = useProjects();
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);

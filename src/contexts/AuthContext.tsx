@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 interface AuthContextType {
   session: Session | null;
   user: SupabaseUser | null;
+  isUserActive: boolean,
   profile: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -160,6 +161,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         session,
         user,
+        isUserActive: profile?.is_active,
         profile,
         loading,
         signIn,
