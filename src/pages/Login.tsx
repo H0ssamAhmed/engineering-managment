@@ -9,6 +9,7 @@ import { Briefcase, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import LoadingPage from "@/components/LoadingPage";
 import { ROUTE_PATHS } from "@/lib";
+import CustomToast from "@/components/CustomToast";
 
 
 export default function Login() {
@@ -71,10 +72,11 @@ export default function Login() {
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center">
             <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center">
-              <Briefcase className="w-8 h-8 text-primary-foreground" />
+              <img src="/public/image.png" className="object-contain" />
+
             </div>
           </div>
-          <CardTitle className="text-2xl">إتقان الهندسي</CardTitle>
+          <CardTitle className="text-2xl">مكتب  انس حلواني للاستشارات الهندسية</CardTitle>
           <CardDescription>نظام إدارة المشاريع الهندسية - سجّل دخولك للمتابعة</CardDescription>
         </CardHeader>
         <CardContent>

@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createUser } from "@/api/users";
-import { useToast } from "@/components/ui/use-toast";
+import toast from "react-hot-toast";
 
 interface AddUserDialogProps {
   open: boolean;
@@ -31,7 +31,6 @@ interface AddUserDialogProps {
 export default function AddUserDialog({ open, onOpenChange, onSuccess }: AddUserDialogProps) {
   const [saving, setSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(true);
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -56,19 +55,14 @@ export default function AddUserDialog({ open, onOpenChange, onSuccess }: AddUser
 
     if (newUser) {
       await onSuccess();
-      toast({
-        title: "تمت الإضافة",
-        description: "تم إضافة الموظف الجديد إلى الفريق."
-      });
+      toast.success("تم إضافة الموظف الجديد إلى الفريق.")
+
       onOpenChange(false);
       // Reset form
       (e.target as HTMLFormElement).reset();
     } else {
-      toast({
-        title: "خطأ",
-        description: "فشل في الإضافة. تأكد من نشر Edge Function وعملك كمدير.",
-        variant: "destructive",
-      });
+      toast.error("فشل في الإضافة. تأكد من نشر Edge Function وعملك كمدير.",)
+
     }
 
     setSaving(false);

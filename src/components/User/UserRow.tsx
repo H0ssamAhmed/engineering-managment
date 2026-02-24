@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { toggleUserStatus } from "@/api/users";
-import { useToast } from "@/components/ui/use-toast";
+import toast from "react-hot-toast";
 
 interface UserRowProps {
   user: User;
@@ -30,23 +30,17 @@ interface UserRowProps {
 
 export default function UserRow({ user, onEdit, onStatusChange }: UserRowProps) {
   const { isManager } = useAuth();
-  const { toast } = useToast();
 
   const handleToggleStatus = async () => {
     const success = await toggleUserStatus(user.id);
 
     if (success) {
       await onStatusChange();
-      toast({
-        title: "تم تحديث الحالة",
-        description: "تم تغيير حالة الموظف بنجاح.",
-      });
+      toast.success("تم تحديث الحالة")
+
     } else {
-      toast({
-        title: "خطأ",
-        description: "فشل في تحديث الحالة.",
-        variant: "destructive",
-      });
+      toast.error("فشل في تحديث الحالة.")
+
     }
   };
 

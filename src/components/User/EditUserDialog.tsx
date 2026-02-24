@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateUser } from "@/api/users";
-import { useToast } from "@/components/ui/use-toast";
+import toast from "react-hot-toast";
 
 interface EditUserDialogProps {
   open: boolean;
@@ -31,7 +31,6 @@ interface EditUserDialogProps {
 
 export default function EditUserDialog({ open, onOpenChange, user, onSuccess }: EditUserDialogProps) {
   const [saving, setSaving] = useState(false);
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,17 +44,10 @@ export default function EditUserDialog({ open, onOpenChange, user, onSuccess }: 
 
     if (updated) {
       await onSuccess();
-      toast({
-        title: "تم التحديث",
-        description: "تم تحديث بيانات الموظف بنجاح."
-      });
+      toast.success("تم تحديث بيانات الموظف بنجاح.")
       onOpenChange(false);
     } else {
-      toast({
-        title: "خطأ",
-        description: "فشل في التحديث.",
-        variant: "destructive"
-      });
+      toast.error("فشل في التحديث.");
     }
 
     setSaving(false);

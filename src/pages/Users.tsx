@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/table";
 import { useAuth } from "@/contexts/AuthContext";
 import { fetchUsers } from "@/api/users";
-import { useToast } from "@/components/ui/use-toast";
 import { USER_ROLES } from "@/lib/index";
 import UserRow from "@/components/User/UserRow";
 import AddUserDialog from "@/components/User/AddUserDialog";
