@@ -49,9 +49,11 @@ export function ProjectStageAccordion({
   const { profile, isUserActive } = useAuth()
   const [currentUpdatedId, setCurrentUpdatedId] = useState<string>("")
   const sortedStages = [...stages]//.sort((a, b) => a.stage_order - b.stage_order);
+
+
   const { mutate: updateStage, isPending } = useMutation({
     mutationFn: ({ stageId, payload }: { stageId: string, payload: unknown, StageName: string }) =>
-      updateProjectStage(stageId, payload, profile.name),
+      updateProjectStage(stageId, payload, profile.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [projectId] });
       toast.success(" تم تحديث المرحلة بنجاح ");
@@ -148,7 +150,7 @@ export function ProjectStageAccordion({
 
                     {(stage.last_updated_by || stage.last_updated_at) && (
                       <div className="flex items-center gap-2 text-xs">
-                        <span>{stage.last_updated_by || "—"}</span>
+                        <span>{stage.last_updated_by_user?.name || "—"}</span>
                         <span className="text-muted-foreground/80">•</span>
                         <span>{formatDateTime(stage.last_updated_at || "")}</span>
                       </div>
@@ -195,7 +197,7 @@ export function ProjectStageAccordion({
                         <div className="grid grid-cols-2 gap-4 text-xs">
                           <div className="space-y-1">
                             <span className="text-muted-foreground block">بواسطة:</span>
-                            <span className="font-medium">{stage.last_updated_by || "النظام"}</span>
+                            <span className="font-medium">{stage.last_updated_by_user?.name || "النظام"}</span>
                           </div>
                           <div className="space-y-1">
                             <span className="text-muted-foreground block">التاريخ والوقت:</span>
@@ -247,7 +249,7 @@ function StageNotesField({
   };
 
   return (
-    <div className="space-y-2 flex-1 flex flex-col">
+    <div className="space-y-2 flex-1 flex flex-col p-1">
       <Textarea
         value={notes}
         onChange={(e) => {

@@ -14,7 +14,7 @@ import Users from "@/pages/Users";
 import ProjectsDetails from "./pages/ProjectsDetails";
 import NotFound from "./pages/not-found/NotFound";
 import { Toaster } from "react-hot-toast";
-import { ActiveUserGuard } from "./contexts/AcitveUserGurd";
+import MyInfo from "./components/MyInfo";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,7 +48,7 @@ const App = () => {
                   <Route path={ROUTE_PATHS.PROJECTS} element={<Projects />} />
                   <Route path={ROUTE_PATHS.PROJECTS + "/:id"} element={<ProjectsDetails />} />
                   <Route path={ROUTE_PATHS.CLIENTS} element={<Clients />} />
-                  <Route path={ROUTE_PATHS.USER_DATA} element={<Clients />} />
+                  <Route path={ROUTE_PATHS.USER_DATA} element={<MyInfo />} />
                   <Route
                     path={ROUTE_PATHS.USERS}
                     element={

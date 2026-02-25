@@ -71,7 +71,7 @@ export default function Projects() {
 
   const getProjectProgress = (projectId: string) => {
     const projectStages = stages.filter((s) => s.project_id === projectId);
-    console.log(projectStages);
+
 
     if (projectStages.length === 0) return 0;
     const completed = projectStages.filter((s) => s.status === "completed").length;

@@ -27,7 +27,12 @@ export async function fetchProjectById(
     .select(
       `
       *,
-      project_stages (*)
+      project_stages (*,
+      last_updated_by_user:users!last_updated_by (
+        name,
+        id
+      )
+      )
     `,
     )
     .eq("id", projectId)

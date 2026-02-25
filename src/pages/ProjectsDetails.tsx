@@ -21,7 +21,7 @@ export default function ProjectsDetails() {
       updates: Partial<ProjectStage>,
       userId: string,) => updateProjectStage(stageId, updates, userId)
   })
-  console.log(data);
+
 
   const { updateStage } = useProjects()
   if (isLoading) {

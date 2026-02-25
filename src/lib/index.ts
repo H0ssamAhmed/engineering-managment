@@ -81,6 +81,7 @@ export interface ProjectStage {
   status: StageStatusValue;
   responsible_user_id: string;
   notes: string;
+  last_updated_by_user?: { name: string; id: string };
   last_updated_by?: string;
   last_updated_at?: string;
 }
