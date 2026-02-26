@@ -39,7 +39,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ProjectStatus } from "@/lib/index"
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 const CURRENT_USER_ID = "u_1"; // Mocking logged in user
@@ -71,12 +70,16 @@ export default function Projects() {
 
   const getProjectProgress = (projectId: string) => {
     const projectStages = stages.filter((s) => s.project_id === projectId);
+    console.log(projectStages);
 
 
     if (projectStages.length === 0) return 0;
     const completed = projectStages.filter((s) => s.status === "completed").length;
     return Math.round((completed / projectStages.length) * 100);
   };
+
+  // console.log(getProjectProgress());
+
   const handleOpenDialog = () => {
     if (!isUserActive) {
       toast.error("حسابك غير نشط ،يرجي التواصل مع المدير.")

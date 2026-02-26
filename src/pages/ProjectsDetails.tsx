@@ -1,11 +1,10 @@
 import { ProjectStageAccordion } from "@/components/ProjectStageAccordion";
-import { useProjects } from "@/hooks/useProjects";
 import { useParams, Link } from "react-router-dom";
 import { ChevronRight, FileText, Hash, MapPin, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { fetchProjectById, updateProjectStage } from "@/api/projects";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { ProjectStage, ROUTE_PATHS } from "@/lib";
+import { fetchProjectById } from "@/api/projects";
+import { useQuery } from "@tanstack/react-query";
+import { ProjectStatus, ROUTE_PATHS, STAGE_STATUS } from "@/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@radix-ui/react-select";
 import { Badge } from "@/components/ui/badge";
@@ -15,15 +14,7 @@ export default function ProjectsDetails() {
   const { data: projectDetails, isLoading } = useQuery({
     queryKey: [id], queryFn: () => fetchProjectById(id)
   })
-  const { data, error, isPending } = useMutation({
-    mutationKey: [id], mutationFn: (
-      stageId: Partial<Pick<ProjectStage, "id">>,
-      updates: Partial<ProjectStage>,
-      userId: string,) => updateProjectStage(stageId, updates, userId)
-  })
 
-
-  const { updateStage } = useProjects()
   if (isLoading) {
     return (
       <div className="py-12 text-center text-muted-foreground">
@@ -73,7 +64,7 @@ export default function ProjectsDetails() {
               </CardDescription>
             </div>
             <Badge variant={projectDetails.status === "active" ? "default" : "secondary"} className="px-3 py-1">
-              {projectDetails.status === "active" ? "نشط" : projectDetails.status}
+              {projectDetails?.stages?.every((stage) => stage?.status == "completed") ? STAGE_STATUS.COMPLETED.label : STAGE_STATUS.IN_PROGRESS.label}
             </Badge>
           </div>
         </CardHeader>

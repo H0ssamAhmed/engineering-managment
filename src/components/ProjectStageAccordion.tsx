@@ -74,6 +74,8 @@ export function ProjectStageAccordion({
       toast.error("حسابك غير نشط ،يرجي التواصل مع المدير.")
       return
     }
+    console.log("run every time");
+
     setCurrentUpdatedId(stageId)
     updateStage({
       stageId,
@@ -81,7 +83,6 @@ export function ProjectStageAccordion({
       StageName
     })
   }
-
 
 
 
