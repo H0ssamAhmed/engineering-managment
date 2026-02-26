@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   MoreVertical,
   Edit2,
@@ -21,6 +21,8 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { toggleUserStatus } from "@/api/users";
 import toast from "react-hot-toast";
+import LoadingRowSkeleton from "../LoadingRowSkeleton";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface UserRowProps {
   user: User;
@@ -29,21 +31,29 @@ interface UserRowProps {
 }
 
 export default function UserRow({ user, onEdit, onStatusChange }: UserRowProps) {
+  const queryClient = useQueryClient()
   const { isManager } = useAuth();
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const handleToggleStatus = async () => {
+    setIsLoading(true)
     const success = await toggleUserStatus(user.id);
 
     if (success) {
       await onStatusChange();
+      queryClient.invalidateQueries({ queryKey: ["users"] })
       toast.success("تم تحديث الحالة")
 
     } else {
       toast.error("فشل في تحديث الحالة.")
-
     }
+    setIsLoading(false)
+
   };
 
+  if (isLoading) {
+    return <LoadingRowSkeleton />
+  }
   return (
     <TableRow className="hover:bg-muted/30 transition-colors">
       <TableCell className="font-medium">
@@ -70,10 +80,11 @@ export default function UserRow({ user, onEdit, onStatusChange }: UserRowProps) 
       <TableCell>
         <div className="flex items-center gap-2">
           <Switch
+
             dir="ltr"
             checked={user.is_active}
             onCheckedChange={handleToggleStatus}
-            disabled={!isManager}
+            disabled={!isManager || user.role == "MANAGER"}
           />
           <span className={user.is_active ? "text-green-600 text-sm" : "text-muted-foreground text-sm"}>
             {user.is_active ? "نشط" : "معطل"}

@@ -14,11 +14,11 @@ import toast from 'react-hot-toast'
 const MyInfo = () => {
     const { profile, user } = useAuth()
     const queryClient = useQueryClient()
-    
+
     // Name update state
     const [name, setName] = useState(profile?.name || '')
     const [isNameEditing, setIsNameEditing] = useState(false)
-    
+
     // Password update state
     const [currentPassword, setCurrentPassword] = useState('')
     const [newPassword, setNewPassword] = useState('')
@@ -58,7 +58,7 @@ const MyInfo = () => {
         mutationFn: async ({ currentPwd, newPwd }: { currentPwd: string; newPwd: string }) => {
             // First verify current password by attempting to sign in
             if (!user?.email) throw new Error('لا يوجد بريد إلكتروني مسجل')
-            
+
             const { error: signInError } = await supabase.auth.signInWithPassword({
                 email: user.email,
                 password: currentPwd
@@ -103,7 +103,7 @@ const MyInfo = () => {
 
     const handlePasswordSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        
+
         if (!currentPassword || !newPassword || !confirmPassword) {
             toast.error('يرجى ملء جميع الحقول')
             return
@@ -160,7 +160,7 @@ const MyInfo = () => {
                                     <Label className="text-muted-foreground">الاسم الحالي</Label>
                                     <p className="text-lg font-medium mt-1">{profile?.name || '—'}</p>
                                 </div>
-                                <Button 
+                                <Button
                                     onClick={() => {
                                         setIsNameEditing(true)
                                         setName(profile?.name || '')

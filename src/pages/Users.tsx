@@ -25,12 +25,14 @@ import { USER_ROLES } from "@/lib/index";
 import UserRow from "@/components/User/UserRow";
 import AddUserDialog from "@/components/User/AddUserDialog";
 import EditUserDialog from "@/components/User/EditUserDialog";
+import { useQuery } from "@tanstack/react-query";
+import LoadingPage from "@/components/LoadingPage";
 
 
 export default function Users() {
   document.title = "مكتب انس حلواني | الموظفين"
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  // const [users, setUsers] = useState<User[]>([]);
+  const { data: users, error, isLoading } = useQuery({ queryKey: ["users"], queryFn: fetchUsers })
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -38,19 +40,19 @@ export default function Users() {
   const { isManager } = useAuth();
 
   const loadUsers = useCallback(async () => {
-    setLoading(true);
+    // setLoading(true);
     const data = await fetchUsers();
-    setUsers(data);
-    setLoading(false);
+    // setUsers(data);
+    // setLoading(false);
   }, []);
 
-  useEffect(() => {
-    loadUsers();
-  }, [loadUsers]);
-
-  const filteredUsers = users.filter((user) =>
+  // useEffect(() => {
+  //   loadUsers();
+  // }, [loadUsers]);
+  const filteredUsers = users?.filter((user) =>
     user.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
 
   const handleOpenEdit = (user: User) => {
     setEditingUser(user);
@@ -61,6 +63,9 @@ export default function Users() {
     setIsEditDialogOpen(false);
     setEditingUser(null);
   };
+  if (isLoading) {
+    return <LoadingPage />
+  }
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -148,8 +153,8 @@ export default function Users() {
         </CardHeader>
         <CardContent>
           <div className="rounded-md border overflow-hidden">
-            {loading ? (
-              <div className="flex items-center justify-center py-12 gap-2 text-muted-foreground">
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-2 text-muted-foreground">
                 <Loader2 className="w-5 h-5 animate-spin" />
                 جاري تحميل الموظفين...
               </div>
