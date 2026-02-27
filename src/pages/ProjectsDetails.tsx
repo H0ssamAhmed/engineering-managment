@@ -4,7 +4,7 @@ import { ChevronRight, FileText, Hash, MapPin, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { fetchProjectById } from "@/api/projects";
 import { useQuery } from "@tanstack/react-query";
-import { ProjectStatus, ROUTE_PATHS, STAGE_STATUS } from "@/lib";
+import { ProjectStatus, ProjectStatusEnum, ROUTE_PATHS, STAGE_STATUS } from "@/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@radix-ui/react-select";
 import { Badge } from "@/components/ui/badge";
@@ -64,7 +64,7 @@ export default function ProjectsDetails() {
               </CardDescription>
             </div>
             <Badge variant={projectDetails.status === "active" ? "default" : "secondary"} className="px-3 py-1">
-              {projectDetails?.stages?.every((stage) => stage?.status == "completed") ? STAGE_STATUS.COMPLETED.label : STAGE_STATUS.IN_PROGRESS.label}
+              {ProjectStatusEnum[projectDetails.status]}
             </Badge>
           </div>
         </CardHeader>

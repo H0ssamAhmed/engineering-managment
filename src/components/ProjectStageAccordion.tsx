@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
   ProjectStage,
+  ProjectStatus,
   STAGE_STATUS,
   StageStatusValue,
   formatDateTime,
@@ -31,7 +32,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-import { updateProjectStage } from "@/api/projects";
+import { updateProject, updateProjectStage } from "@/api/projects";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import UpdateStageSkeleton from "./UpdateStageSkeleton";
@@ -63,6 +64,20 @@ export function ProjectStageAccordion({
       toast.error("حصل مشكلة أثناء التحديث:" + error);
       console.error("حصل مشكلة أثناء التحديث:", error);
       setCurrentUpdatedId("")
+    }
+  });
+
+  const { mutate: updateProjectStatus, isPending: isUpdateingStatus } = useMutation({
+    mutationFn: (newVlaue: ProjectStatus) => updateProject(projectId, { status: newVlaue }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [projectId] });
+      toast.success(" تم تحديث حالة المشروع ");
+      setCurrentUpdatedId("")
+    },
+    onError: (error) => {
+      toast.error("حصل مشكلة أثناء التحديث:" + error);
+      console.error("حصل مشكلة أثناء التحديث:", error);
+      setCurrentUpdatedId("")
 
     }
   });
@@ -74,7 +89,6 @@ export function ProjectStageAccordion({
       toast.error("حسابك غير نشط ،يرجي التواصل مع المدير.")
       return
     }
-    console.log("run every time");
 
     setCurrentUpdatedId(stageId)
     updateStage({
@@ -82,6 +96,12 @@ export function ProjectStageAccordion({
       payload: { status: newStatus },
       StageName
     })
+    const isLastStage = StageName === "التقديم في بلدي";
+
+    if (!isLastStage) return;
+
+    const projectStatus = newStatus === "completed" ? "completed" : "active";
+    updateProjectStatus(projectStatus);
   }
 
 
@@ -236,7 +256,7 @@ function StageNotesField({
   initialNotes: string;
   onSave: (notes: string) => void
 }) {
-  const [notes, setNotes] = useState(initialNotes || "");
+  const [notes, setNotes] = useState(initialNotes || ".");
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
