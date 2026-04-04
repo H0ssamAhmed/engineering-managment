@@ -116,10 +116,7 @@ export async function createProject(
       land_location: input.land_location,
       server_path: input.server_path,
       client_id: input.client_id,
-      // current_stage_id: "",
       status: "active",
-      // created_at: now,
-      // updated_at: now,
     })
     .select()
     .single();

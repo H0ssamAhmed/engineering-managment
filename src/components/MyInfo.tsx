@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2, User, Lock, Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { InactiveNotfication } from './InactiveNotfication'
 
 const MyInfo = () => {
     const { profile, user } = useAuth()
@@ -44,7 +45,6 @@ const MyInfo = () => {
             if (data) {
                 toast.success('تم تحديث الاسم بنجاح ✅')
                 setIsNameEditing(false)
-                // Invalidate queries to refresh user data
                 queryClient.invalidateQueries({ queryKey: ['profile'] })
             }
         },
@@ -350,7 +350,7 @@ const MyInfo = () => {
                             <p className="text-lg font-medium mt-1">{user?.email || profile?.email || '—'}</p>
                         </div>
                         <div>
-                            <Label className="text-muted-foreground">الدور</Label>
+                            <Label className="text-muted-foreground">المسمى الوظيفي</Label>
                             <p className="text-lg font-medium mt-1">{profile?.role ? getRoleLabel(profile.role) : '—'}</p>
                         </div>
                         <div>
@@ -359,7 +359,10 @@ const MyInfo = () => {
                                 {profile?.is_active ? (
                                     <span className="text-green-600">نشط</span>
                                 ) : (
-                                    <span className="text-red-600">غير نشط</span>
+                                    <div className='flex items-center gap-2 text-red-600'>
+                                        <span>غير نشط</span>
+                                        (<InactiveNotfication classNames="text-sm" />)
+                                    </div>
                                 )}
                             </p>
                         </div>

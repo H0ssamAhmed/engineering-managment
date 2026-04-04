@@ -56,7 +56,6 @@ export function ClientDialog({
     },
   });
 
-  // Reset form when client changes or dialog opens
   React.useEffect(() => {
     if (open) {
       form.reset({

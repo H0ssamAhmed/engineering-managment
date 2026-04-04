@@ -81,7 +81,6 @@ export function ProjectStageAccordion({
 
     }
   });
-  // Find the current active stage to expand it by default
   const activeStage = sortedStages.find((s) => s.status === "in_progress") || sortedStages.find((s) => s.status === "not_started") || sortedStages[0];
   const [expandedValue, setExpandedValue] = useState<string | undefined>(activeStage?.id);
   const handleStatusChange = (stageId: string, newStatus: StageStatusValue, StageName: string) => {

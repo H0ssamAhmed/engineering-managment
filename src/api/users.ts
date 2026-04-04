@@ -22,17 +22,16 @@ export type CreateUserInput = {
 };
 
 export async function createUser(input: CreateUserInput): Promise<User | null> {
-  // Refresh session so the access_token is valid (getSession() can return expired token)
   const { data: refreshData, error: refreshError } =
     await supabase.auth.refreshSession();
 
-  const session = refreshData?.session ?? (await supabase.auth.getSession()).data
-    ?.session;
+  const session =
+    refreshData?.session ?? (await supabase.auth.getSession()).data?.session;
 
   if (!session) {
     console.error(
       "No active session - user must be logged in!",
-      refreshError?.message
+      refreshError?.message,
     );
     return null;
   }

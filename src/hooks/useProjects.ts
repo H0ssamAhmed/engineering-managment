@@ -40,9 +40,8 @@ const loadData = async () => {
     );
   } catch (err) {
     console.error("Error loading data:", err);
-    // setError(err instanceof Error ? err.message : "فشل تحميل البيانات");
   } finally {
-    // setLoading(false);
+    console.log("");
   }
 };
 
@@ -53,27 +52,24 @@ export const useProjects = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [logs, setLogs] = useState<ProjectLog[]>([]);
 
-  const data =
-    //  { projects, projectStages, clients, projectLogs, isLoading, isError }
-    useQueries({
-      queries: [
-        { queryKey: ["projects"], queryFn: fetchProjects },
-        { queryKey: ["projectStages"], queryFn: fetchProjects },
-        { queryKey: ["clients"], queryFn: fetchClients },
-        { queryKey: ["projectLogs"], queryFn: fetchProjectLogs },
-      ],
-      combine(results) {
-        return {
-          projects: results[0].data,
-          projectStages: results[1].data,
-          clients: results[2].data,
-          projectLogs: results[3].data,
-          // ممكن كمان تجمع حالة التحميل لكل الطلبات في متغير واحد
-          isLoading: results.some((res) => res.isLoading),
-          isError: results.some((res) => res.isError),
-        };
-      },
-    });
+  const data = useQueries({
+    queries: [
+      { queryKey: ["projects"], queryFn: fetchProjects },
+      { queryKey: ["projectStages"], queryFn: fetchProjects },
+      { queryKey: ["clients"], queryFn: fetchClients },
+      { queryKey: ["projectLogs"], queryFn: fetchProjectLogs },
+    ],
+    combine(results) {
+      return {
+        projects: results[0].data,
+        projectStages: results[1].data,
+        clients: results[2].data,
+        projectLogs: results[3].data,
+        isLoading: results.some((res) => res.isLoading),
+        isError: results.some((res) => res.isError),
+      };
+    },
+  });
   useEffect(() => {
     if (!data.isError && !data.isLoading) {
       setProjects(data.projects);
@@ -82,33 +78,6 @@ export const useProjects = () => {
       setLogs(data.projectLogs);
     }
   }, [data]);
-
-  // const loadData = useCallback(async () => {
-  //   setLoading(true);
-  //   setError(null);
-  //   try {
-  // const [projectsData, stagesData, clientsData, logsData] =
-  //   await Promise.all([
-  //     fetchProjects(),
-  //     fetchProjectStages(),
-  //     fetchClients(),
-  //     fetchProjectLogs(),
-  //   ]);
-  // setProjects(projectsData);
-  // setStages(stagesData);
-  // setClients(clientsData);
-  // setLogs(logsData);
-  //   } catch (err) {
-  //     console.error("Error loading data:", err);
-  //     setError(err instanceof Error ? err.message : "فشل تحميل البيانات");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   loadData();
-  // }, [loadData]);
 
   const addLog = useCallback(
     async (log: Omit<ProjectLog, "id" | "created_at">) => {

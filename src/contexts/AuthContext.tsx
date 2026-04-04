@@ -56,10 +56,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    // Initialize session on mount
     const initialize = async () => {
       try {
-        const { data: { session, user }, error } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
         if (!session) {
           console.error("Session error:", error || "Ssession expired");
           localStorage.clear();
@@ -81,14 +80,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    initialize(); // IMPORTANT: Uncomment this!
+    initialize();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
-        // This will use for logout event later
-        // console.log(event);
-        // console.log(currentSession);
 
       }
     );

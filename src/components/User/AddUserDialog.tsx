@@ -58,7 +58,6 @@ export default function AddUserDialog({ open, onOpenChange, onSuccess }: AddUser
       toast.success("تم إضافة الموظف الجديد إلى الفريق.")
 
       onOpenChange(false);
-      // Reset form
       (e.target as HTMLFormElement).reset();
     } else {
       toast.error("فشل في الإضافة. تأكد من نشر Edge Function وعملك كمدير.",)

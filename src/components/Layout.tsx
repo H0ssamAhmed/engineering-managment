@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { NavLink, useLocation, Outlet } from "react-router-dom";
 import {
-  Briefcase,
   Menu,
   Bell,
   Search,
@@ -15,10 +14,12 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
-import { navigation } from "@/lib/index";
+import { navigation, ROUTE_PATHS } from "@/lib/index";
 import { format } from "date-fns";
-import { ar } from 'date-fns/locale'; // استيراد ملف اللغة العربية
+import { ar } from 'date-fns/locale';
 import LoggedInUser from "./LoggedInUser";
+import DisplayInactiveNotfication from "./InactiveNotfication";
+import { useAuth } from "@/contexts/AuthContext";
 interface LayoutProps {
   children?: React.ReactNode;
 }
@@ -26,7 +27,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const today = new Date();
   const location = useLocation();
-
+  const { profile } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 
@@ -55,7 +56,8 @@ export function Layout({ children }: LayoutProps) {
                 "flex items-center gap-3 px-4 py-3 rounded-md transition-all duration-200 group",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                profile?.role !== "MANAGER" && item.href == ROUTE_PATHS.USERS && "hidden",
               )}
             >
               <item.icon
@@ -78,7 +80,11 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-background flex flex-row-reverse" dir="rtl">
       {/* Desktop Sidebar */}
+      <DisplayInactiveNotfication />
+
+
       <aside className="hidden lg:block w-72 fixed inset-y-0 right-0 z-50">
+
         <SidebarContent />
       </aside>
 

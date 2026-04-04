@@ -17,12 +17,10 @@ import { useProjects } from "@/hooks/useProjects";
 import { STAGE_STATUS, USER_ROLES } from "@/lib/index";
 
 export function DashboardStats() {
-  const { projects, stages, stats } = useProjects();
-
-  // Calculate Projects per Engineer (Active stages workload)
+  const { stages, stats } = useProjects();
   const engineerWorkload = useMemo(() => {
     const workload: Record<string, number> = {};
-    stages.forEach((stage) => {
+    stages?.forEach((stage) => {
       if (stage.status === "in_progress" || stage.status === "waiting") {
         workload[stage.responsible_user_id] = (workload[stage.responsible_user_id] || 0) + 1;
       }
@@ -32,7 +30,6 @@ export function DashboardStats() {
 
   return (
     <div className="space-y-6" dir="rtl">
-      {/* Top Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="border-r-4 border-r-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -82,8 +79,8 @@ export function DashboardStats() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats.totalProjects > 0 
-                ? Math.round((stats.completedProjects / stats.totalProjects) * 100) 
+              {stats.totalProjects > 0
+                ? Math.round((stats.completedProjects / stats.totalProjects) * 100)
                 : 0}%
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -114,11 +111,10 @@ export function DashboardStats() {
                   </div>
                   <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                     <div
-                      className={`h-full transition-all duration-500 ${
-                        status.value === "completed" ? "bg-green-500" : 
-                        status.value === "in_progress" ? "bg-primary" : 
-                        status.value === "waiting" ? "bg-orange-500" : "bg-slate-300"
-                      }`}
+                      className={`h-full transition-all duration-500 ${status.value === "completed" ? "bg-green-500" :
+                        status.value === "in_progress" ? "bg-primary" :
+                          status.value === "waiting" ? "bg-orange-500" : "bg-slate-300"
+                        }`}
                       style={{
                         width: `${(stats.stageDistribution[status.value] || 0) / (stages.length || 1) * 100}%`
                       }}
@@ -141,11 +137,8 @@ export function DashboardStats() {
           <CardContent className="max-h-[350px] overflow-y-auto custom-scrollbar">
             <div className="space-y-4">
               {Object.entries(USER_ROLES).map(([key, label]) => {
-                // In a real app, we'd map this to actual user IDs
-                // Here we simulate by showing projects per role based on mock data distribution
                 const count = Object.values(engineerWorkload).reduce((acc, val, idx) => {
-                   // Simulated mapping for visualization
-                   return (idx % 7 === Object.keys(USER_ROLES).indexOf(key)) ? acc + val : acc;
+                  return (idx % 7 === Object.keys(USER_ROLES).indexOf(key)) ? acc + val : acc;
                 }, 0);
 
                 return (

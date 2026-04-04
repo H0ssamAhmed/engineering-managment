@@ -29,7 +29,7 @@ export async function getProjectWithStages(projectId: string) {
     `,
     )
     .eq("id", projectId)
-    .single(); // Use .single() because we are fetching one project by ID
+    .single();
 
   if (error) {
     console.error("Error fetching project:", error.message);

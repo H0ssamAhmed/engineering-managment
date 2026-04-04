@@ -2,7 +2,7 @@ import React from 'react'
 import { Avatar, AvatarImage } from './ui/avatar'
 import { AvatarFallback } from '@radix-ui/react-avatar'
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS, getRoleLabel } from "@/lib/index";
 import { Button } from './ui/button';
 import { LogOut } from 'lucide-react';
@@ -17,7 +17,7 @@ const LoggedInUser = () => {
     };
     return (
         <div className="p-4 mt-auto border-t border-sidebar-border">
-            <div className="flex items-center gap-3 px-2 py-3">
+            <Link to={ROUTE_PATHS.USER_DATA} className="flex items-center gap-3 px-2 py-3">
                 <Avatar className="size-10 border border-border">
                     <AvatarImage src="" />
                     <AvatarFallback className="bg-accent text-accent-foreground w-full flex items-center justify-center font-bold">
@@ -38,7 +38,7 @@ const LoggedInUser = () => {
                 >
                     <LogOut size={18} />
                 </Button>
-            </div>
+            </Link>
         </div>
     )
 }

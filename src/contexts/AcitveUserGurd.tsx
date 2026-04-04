@@ -9,7 +9,6 @@ export function ActiveUserGuard({ children }: { children: React.ReactNode }) {
     if (loading) return null;
 
     if (!isUserActive) {
-        // إذا حاول الدخول لصفحة تعديل وهو غير نشط
         toast.error("حسابك غير نشط. لا يمكنك القيام بعمليات تعديل.");
         return <Navigate to="/dashboard" replace />;
     }

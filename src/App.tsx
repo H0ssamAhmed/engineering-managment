@@ -15,6 +15,7 @@ import ProjectsDetails from "./pages/ProjectsDetails";
 import NotFound from "./pages/not-found/NotFound";
 import { Toaster } from "react-hot-toast";
 import MyInfo from "./components/MyInfo";
+import DisplayInactiveNotfication from "./components/InactiveNotfication";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,7 +31,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
-          <div dir="rtl" lang="ar" className="min-h-screen bg-background font-sans antialiased selection:bg-primary/20 selection:text-primary">
+          <div dir="rtl" lang="ar" className="min-h-screen bg-background font-sans antialiased selection:bg-primary/20 selection:text-primary relative">
 
             <BrowserRouter>
               <Routes>
@@ -58,8 +59,6 @@ const App = () => {
                     }
                   />
                   <Route path={ROUTE_PATHS.USERS} element={<Users />} />
-
-
                   <Route path="*" element={<NotFound />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/" replace />} />
