@@ -20,6 +20,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const { session } = useAuth()
+  const [testLogin, setTestLogin] = useState(false);
   document.title = "مكتب انس حلواني | تسجيل الدخول"
 
   const checkSessionChnages = () => {
@@ -62,7 +63,9 @@ export default function Login() {
       navigate("/");
     }
   };
-
+  const handleTestLogin = () => {
+    setTestLogin(true)
+  }
   if (loading) return <LoadingPage />
 
   return (
@@ -72,7 +75,7 @@ export default function Login() {
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center">
             <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center">
-              <img src="/public/image.png" className="object-contain" />
+              <img src="/image.png" className="object-contain" />
 
             </div>
           </div>
@@ -132,6 +135,18 @@ export default function Login() {
             <Link to={ROUTE_PATHS.DASHBOARD}>
               <Button variant="outline"> الصفحة الرئيسية</Button>
             </Link>
+          </div>}
+          <div className="f justify-center gap-2 p-4">
+            <p>ليس بديك حساب ؟  <br />
+              <span onClick={handleTestLogin} className="underline cursor-pointer">تسجيل الدخول بحساب تجريبي</span>
+            </p>
+          </div>
+          {testLogin && <div>
+            <p>بيانات حساب تجريبي</p>
+            <ol className="flex flex-col gap-2 p-3 rounded-2xl bg-gray-100">
+              <li className="flex items-center justify-between">البريد الإلكتروني: <span className=" text-end">visitor@anas-con.com</span></li>
+              <li className="flex items-center justify-between">كلمة المرور: <span className=" text-end">Password!123</span></li>
+            </ol>
           </div>}
         </CardContent>
 
