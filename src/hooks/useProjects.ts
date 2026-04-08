@@ -17,6 +17,7 @@ import {
   updateProjectStage,
   addProjectLog,
   type CreateProjectInput,
+  fetchProjectsStagesStatus,
 } from "../api/projects";
 import {
   fetchClients,
@@ -48,14 +49,14 @@ const loadData = async () => {
 export const useProjects = () => {
   const { profile } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [stages, setStages] = useState<ProjectStage[] | unknown>([]);
+  const [stages, setStages] = useState<ProjectStage[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [logs, setLogs] = useState<ProjectLog[]>([]);
 
   const data = useQueries({
     queries: [
       { queryKey: ["projects"], queryFn: fetchProjects },
-      { queryKey: ["projectStages"], queryFn: fetchProjects },
+      { queryKey: ["projectStages"], queryFn: fetchProjectsStagesStatus },
       { queryKey: ["clients"], queryFn: fetchClients },
       { queryKey: ["projectLogs"], queryFn: fetchProjectLogs },
     ],
@@ -76,6 +77,7 @@ export const useProjects = () => {
       setStages(data?.projectStages);
       setClients(data.clients);
       setLogs(data.projectLogs);
+      console.log(data.projectLogs);
     }
   }, [data]);
 
@@ -200,6 +202,14 @@ export const useProjects = () => {
           comment: `تم تحديث ملاحظات المرحلة "${currentStage.name}"`,
         });
       }
+      console.log({
+        project_id: projectId,
+        stage_id: stageId,
+        user_id: CURRENT_USER_ID,
+        action_type: "note_update",
+        new_value: updates.notes,
+        comment: `تم تحديث ملاحظات المرحلة "${currentStage.name}"`,
+      });
 
       const now = new Date().toLocaleString("en-US", {
         timeZone: "Asia/Riyadh",
@@ -211,6 +221,7 @@ export const useProjects = () => {
         last_updated_by: currentUserName,
         last_updated_at: now,
       };
+      console.log(finalUpdates);
 
       if (updates.status === "completed") {
         finalUpdates = { ...finalUpdates };
@@ -286,6 +297,19 @@ export const useProjects = () => {
     cancelledProjects: projects.filter((p) => p.status === "cancelled").length,
     lateProjects: projects.filter((p) => p.status === "active").length,
 
+    notStartedStages: stages.filter(
+      (s) => s.status == STAGE_STATUS.NOT_STARTED.value,
+    ),
+    waitingStages: stages.filter((s) => s.status == STAGE_STATUS.WAITING.value),
+
+    completedStages: stages.filter(
+      (s) => s.status == STAGE_STATUS.COMPLETED.value,
+    ),
+
+    inProgressStages: stages.filter(
+      (s) => s.status == STAGE_STATUS.IN_PROGRESS.value,
+    ),
+
     stageDistribution: stages.reduce(
       (acc, stage) => {
         acc[stage.status] = (acc[stage.status] || 0) + 1;
@@ -297,6 +321,10 @@ export const useProjects = () => {
 
   return {
     projects,
+    // notStartedStages: stats.notStartedStages,
+    // waitingStages: stats.waitingStages,
+    // completedStages: stats.completedStages,
+    // inProgressStages: stats.inProgressStages,
     stages,
     clients,
     logs,

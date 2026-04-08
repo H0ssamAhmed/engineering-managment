@@ -5,12 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Briefcase, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import LoadingPage from "@/components/LoadingPage";
 import { ROUTE_PATHS } from "@/lib";
-import CustomToast from "@/components/CustomToast";
-
 
 export default function Login() {
   const { signIn, loading } = useAuth();
@@ -32,16 +30,12 @@ export default function Login() {
   useEffect(() => {
     checkSessionChnages()
   }, [session])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-
-
     setSubmitting(true);
     try {
       const res = await signIn(email, password);
-
-
     } catch (error) {
       console.error(error);
 

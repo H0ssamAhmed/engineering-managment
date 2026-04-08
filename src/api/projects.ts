@@ -77,13 +77,27 @@ export async function fetchProjectStages(
   }
   return (data || []) as ProjectStage[];
 }
+export async function fetchProjectsStagesStatus(): Promise<ProjectStage[]> {
+  const query = supabase
+    .from("project_stages")
+    .select("*")
+    .order("stage_order", { ascending: true });
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching project stages:", error);
+    return [];
+  }
+  return (data || []) as ProjectStage[];
+}
 
 export async function fetchProjectLogs(): Promise<ProjectLog[]> {
   const { data, error } = await supabase
     .from("project_logs")
     .select("*")
     .order("created_at", { ascending: false })
-    .limit(100);
+    .limit(50);
 
   if (error) {
     console.error("Error fetching project logs:", error);
@@ -167,6 +181,13 @@ export async function createProject(
       .update({ current_stage_id: firstStageId, updated_at: now })
       .eq("id", project.id);
   }
+  const logPayload = {
+    project_id: project.id,
+    user_id: userId,
+    action_type: "creation",
+    comment: "تم إنشاء المشروع الجديد بنجاح",
+  };
+  console.log(logPayload);
 
   await addProjectLog({
     project_id: project.id,

@@ -25,6 +25,7 @@ export function DashboardStats() {
         workload[stage.responsible_user_id] = (workload[stage.responsible_user_id] || 0) + 1;
       }
     });
+
     return workload;
   }, [stages]);
 
@@ -46,11 +47,11 @@ export function DashboardStats() {
 
         <Card className="border-r-4 border-r-destructive">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">مشاريع متأخرة</CardTitle>
+            <CardTitle className="text-sm font-medium">مراحل لم تبدأ</CardTitle>
             <AlertTriangle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.lateProjects}</div>
+            <div className="text-2xl font-bold">{stats.notStartedStages.length || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
               تجاوزت تاريخ الرخصة المستهدف
             </p>
@@ -64,7 +65,8 @@ export function DashboardStats() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats.stageDistribution[STAGE_STATUS.WAITING.value] || 0}
+
+              {stats.waitingStages.length || 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               مراحل تتطلب تدخل فوري
