@@ -9,7 +9,6 @@ import {
 } from "../lib/index";
 import {
   fetchProjects,
-  fetchProjectStages,
   fetchProjectLogs,
   fetchProjectById,
   createProject as createProjectApi,
@@ -26,32 +25,21 @@ import {
   deleteClient as deleteClientApi,
 } from "../api/clients";
 import { useAuth } from "@/contexts/AuthContext";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const CURRENT_USER_ID = "82a9eeb0-ddec-470d-ac1c-7e4bb6efa83f";
-const loadData = async () => {
-  try {
-    const [projectsData, stagesData, clientsData, logsData] = await Promise.all(
-      [
-        fetchProjects(),
-        fetchProjectStages(),
-        fetchClients(),
-        fetchProjectLogs(),
-      ],
-    );
-  } catch (err) {
-    console.error("Error loading data:", err);
-  } finally {
-    console.log("");
-  }
-};
 
 export const useProjects = () => {
+  const queryClient = useQueryClient();
   const { profile } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [stages, setStages] = useState<ProjectStage[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [logs, setLogs] = useState<ProjectLog[]>([]);
+
+  const loadData = useCallback(async () => {
+    await queryClient.invalidateQueries();
+  }, [queryClient]);
 
   const data = useQueries({
     queries: [
@@ -77,7 +65,6 @@ export const useProjects = () => {
       setStages(data?.projectStages);
       setClients(data.clients);
       setLogs(data.projectLogs);
-      console.log(data.projectLogs);
     }
   }, [data]);
 
@@ -86,7 +73,7 @@ export const useProjects = () => {
       const success = await addProjectLog({
         project_id: log.project_id,
         stage_id: log.stage_id,
-        user_id: CURRENT_USER_ID,
+        user_id: log.user_id,
         action_type: log.action_type,
         old_value: log.old_value,
         new_value: log.new_value,
@@ -99,9 +86,10 @@ export const useProjects = () => {
           created_at: new Date().toISOString(),
         };
         setLogs((prev) => [newLog, ...prev]);
+        await queryClient.invalidateQueries({ queryKey: ["projectLogs"] });
       }
     },
-    [],
+    [queryClient],
   );
 
   const addClient = useCallback(
@@ -145,6 +133,7 @@ export const useProjects = () => {
       projectData: Omit<Project, "id" | "created_at" | "updated_at" | "status">,
       userId: string,
     ) => {
+      const actorId = profile?.id || userId || CURRENT_USER_ID;
       const input: CreateProjectInput = {
         name: projectData.name,
         type: projectData.type,
@@ -153,15 +142,22 @@ export const useProjects = () => {
         server_path: projectData.server_path,
         client_id: projectData.client_id,
       };
-      const newProject = await createProjectApi(input, userId);
+      const newProject = await createProjectApi(input, actorId);
       if (newProject) {
+        await addLog({
+          project_id: newProject.id,
+          stage_id: newProject.current_stage_id || undefined,
+          user_id: actorId,
+          action_type: "creation",
+          comment: `تم إنشاء المشروع "${projectData.name}" بنجاح`,
+        });
         setProjects((prev) => [newProject, ...prev]);
         await loadData();
         return newProject;
       }
       return null;
     },
-    [loadData],
+    [loadData, addLog, profile?.id],
   );
 
   const updateStage = useCallback(
@@ -202,14 +198,6 @@ export const useProjects = () => {
           comment: `تم تحديث ملاحظات المرحلة "${currentStage.name}"`,
         });
       }
-      console.log({
-        project_id: projectId,
-        stage_id: stageId,
-        user_id: CURRENT_USER_ID,
-        action_type: "note_update",
-        new_value: updates.notes,
-        comment: `تم تحديث ملاحظات المرحلة "${currentStage.name}"`,
-      });
 
       const now = new Date().toLocaleString("en-US", {
         timeZone: "Asia/Riyadh",
@@ -221,8 +209,6 @@ export const useProjects = () => {
         last_updated_by: currentUserName,
         last_updated_at: now,
       };
-      console.log(finalUpdates);
-
       if (updates.status === "completed") {
         finalUpdates = { ...finalUpdates };
 

@@ -105,14 +105,14 @@ export function Layout({ children }: LayoutProps) {
                 </SheetContent>
               </Sheet>
 
-              <div className="hidden md:flex items-center bg-muted rounded-full px-4 py-1.5 gap-2 w-64 lg:w-96">
+              {/* <div className="hidden md:flex items-center bg-muted rounded-full px-4 py-1.5 gap-2 w-64 lg:w-96">
                 <Search size={18} className="text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="البحث عن مشروع، عميل..."
                   className="bg-transparent border-none outline-none text-sm w-full"
                 />
-              </div>
+              </div> */}
             </div>
 
             <div className="flex items-center gap-2">

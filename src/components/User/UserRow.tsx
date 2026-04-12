@@ -23,35 +23,26 @@ import { toggleUserStatus } from "@/api/users";
 import toast from "react-hot-toast";
 import LoadingRowSkeleton from "../LoadingRowSkeleton";
 import { useQueryClient } from "@tanstack/react-query";
+import { useUsers } from "@/hooks/useUsers";
 
 interface UserRowProps {
   user: User;
   onEdit: (user: User) => void;
-  onStatusChange: () => void;
+
 }
 
-export default function UserRow({ user, onEdit, onStatusChange }: UserRowProps) {
-  const queryClient = useQueryClient()
+export default function UserRow({ user, onEdit }: UserRowProps) {
+  const { updateUserInfo, isPending } = useUsers()
   const { isManager } = useAuth();
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const handleToggleStatus = async () => {
-    setIsLoading(true)
-    const success = await toggleUserStatus(user.id);
+  const handleToggleStatus = async () => await updateUserInfo(user.id, { is_active: !user.is_active });
 
-    if (success) {
-      await onStatusChange();
-      queryClient.invalidateQueries({ queryKey: ["users"] })
-      toast.success("تم تحديث الحالة")
 
-    } else {
-      toast.error("فشل في تحديث الحالة.")
-    }
-    setIsLoading(false)
 
-  };
 
-  if (isLoading) {
+
+  if (isPending) {
     return <LoadingRowSkeleton />
   }
   return (

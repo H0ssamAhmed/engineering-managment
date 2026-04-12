@@ -72,7 +72,15 @@ export interface User {
   role: UserRole;
   is_active: boolean;
 }
-
+export type AddProjectLogInput = {
+  project_id: string;
+  stage_id?: string;
+  user_id: string;
+  action_type: ProjectLog["action_type"];
+  old_value?: string;
+  new_value?: string;
+  comment: string;
+};
 export interface ProjectStage {
   id: string;
   project_id: string;

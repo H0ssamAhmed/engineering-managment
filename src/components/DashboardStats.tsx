@@ -21,13 +21,13 @@ export function DashboardStats() {
   const engineerWorkload = useMemo(() => {
     const workload: Record<string, number> = {};
     stages?.forEach((stage) => {
-      if (stage.status === "in_progress" || stage.status === "waiting") {
+      if (stage.status === "in_progress" || stage.status === "waiting" || stage.status === "not_started") {
         workload[stage.responsible_user_id] = (workload[stage.responsible_user_id] || 0) + 1;
       }
     });
-
     return workload;
   }, [stages]);
+
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -53,7 +53,7 @@ export function DashboardStats() {
           <CardContent>
             <div className="text-2xl font-bold">{stats.notStartedStages.length || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              تجاوزت تاريخ الرخصة المستهدف
+              تجاوزت تاريخ البدأ المستهدف
             </p>
           </CardContent>
         </Card>
@@ -133,7 +133,7 @@ export function DashboardStats() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
-              ضغط العمل لكل تخصص
+              ضغط العمل لكل مهندس
             </CardTitle>
           </CardHeader>
           <CardContent className="max-h-[350px] overflow-y-auto custom-scrollbar">

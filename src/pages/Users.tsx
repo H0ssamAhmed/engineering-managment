@@ -27,31 +27,20 @@ import AddUserDialog from "@/components/User/AddUserDialog";
 import EditUserDialog from "@/components/User/EditUserDialog";
 import { useQuery } from "@tanstack/react-query";
 import LoadingPage from "@/components/LoadingPage";
+import { useUsers } from "@/hooks/useUsers";
 
 
 export default function Users() {
   document.title = "مكتب انس حلواني | الموظفين"
   // const [users, setUsers] = useState<User[]>([]);
-  const { data: users, error, isLoading } = useQuery({ queryKey: ["users"], queryFn: fetchUsers })
+  // const { data: users, error, isLoading } = useQuery({ queryKey: ["users"], queryFn: fetchUsers })
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const { users, error, isLoading } = useUsers()
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const { isManager } = useAuth();
 
-  const loadUsers = useCallback(async () => {
-    // setLoading(true);
-    const data = await fetchUsers();
-    // setUsers(data);
-    // setLoading(false);
-  }, []);
-
-  // useEffect(() => {
-  //   loadUsers();
-  // }, [loadUsers]);
-  const filteredUsers = users?.filter((user) =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
 
   const handleOpenEdit = (user: User) => {
@@ -77,7 +66,7 @@ export default function Users() {
           </p>
         </div>
 
-        <Button
+        {/* <Button
           className="gap-2"
           disabled={!isManager}
           title={!isManager ? "فقط مدير المكتب يمكنه إضافة موظفين" : undefined}
@@ -85,7 +74,7 @@ export default function Users() {
         >
           <UserPlus className="w-4 h-4" />
           إضافة موظف جديد
-        </Button>
+        </Button> */}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -169,13 +158,12 @@ export default function Users() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredUsers.length > 0 ? (
-                    filteredUsers.map((user) => (
+                  {users.length > 0 ? (
+                    users.map((user) => (
                       <UserRow
                         key={user.id}
                         user={user}
                         onEdit={handleOpenEdit}
-                        onStatusChange={loadUsers}
                       />
                     ))
                   ) : (
@@ -192,18 +180,17 @@ export default function Users() {
         </CardContent>
       </Card>
 
-      <AddUserDialog
+      {/* <AddUserDialog
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
-        onSuccess={loadUsers}
-      />
+
+      /> */}
 
       {editingUser && (
         <EditUserDialog
           open={isEditDialogOpen}
           onOpenChange={handleCloseEdit}
           user={editingUser}
-          onSuccess={loadUsers}
         />
       )}
     </div>

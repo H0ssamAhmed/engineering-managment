@@ -19,37 +19,28 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { updateUser } from "@/api/users";
-import toast from "react-hot-toast";
+
+import { useUsers } from "@/hooks/useUsers";
 
 interface EditUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: User;
-  onSuccess: () => void;
 }
 
-export default function EditUserDialog({ open, onOpenChange, user, onSuccess }: EditUserDialogProps) {
+export default function EditUserDialog({ open, onOpenChange, user }: EditUserDialogProps) {
   const [saving, setSaving] = useState(false);
-
+  const { updateUserInfo } = useUsers()
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get("name") as string;
     const role = formData.get("role") as UserRole;
-
     setSaving(true);
-
-    const updated = await updateUser(user.id, { name, role });
-
+    const updated = await updateUserInfo(user.id, { name, role });
     if (updated) {
-      await onSuccess();
-      toast.success("تم تحديث بيانات الموظف بنجاح.")
       onOpenChange(false);
-    } else {
-      toast.error("فشل في التحديث.");
-    }
-
+    } else { onOpenChange(true); }
     setSaving(false);
   };
 

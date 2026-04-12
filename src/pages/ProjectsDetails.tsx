@@ -1,4 +1,6 @@
 import { ProjectStageAccordion } from "@/components/ProjectStageAccordion";
+import { useProjects } from "@/hooks/useProjects";
+import { useAuth } from "@/contexts/AuthContext";
 import { useParams, Link } from "react-router-dom";
 import { ChevronRight, FileText, Hash, MapPin, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 
 export default function ProjectsDetails() {
   const { id } = useParams();
+  const { addLog } = useProjects();
+  const { profile } = useAuth();
   const { data: projectDetails, isLoading } = useQuery({
     queryKey: [id], queryFn: () => fetchProjectById(id)
   })
@@ -100,8 +104,10 @@ export default function ProjectsDetails() {
 
       <ProjectStageAccordion
         projectId={projectDetails.id}
+        projectStatus={projectDetails.status}
         stages={projectDetails.stages}
-
+        addLog={addLog}
+        userId={profile?.id ?? ""}
       />
     </div>
   );

@@ -18,14 +18,14 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
   ProjectStage,
+  ProjectLog,
   ProjectStatus,
+  ProjectStatusEnum,
   STAGE_STATUS,
   StageStatusValue,
   formatDateTime,
 } from "@/lib/index";
 import {
-  Clock,
-  User,
   Save,
   Info,
   CheckCircle2,
@@ -39,12 +39,18 @@ import UpdateStageSkeleton from "./UpdateStageSkeleton";
 
 interface ProjectStageAccordionProps {
   projectId: string;
+  projectStatus: ProjectStatus;
   stages: ProjectStage[];
+  addLog: (log: Omit<ProjectLog, "id" | "created_at">) => Promise<void>;
+  userId: string;
 }
 
 export function ProjectStageAccordion({
   projectId,
+  projectStatus,
   stages,
+  addLog,
+  userId,
 }: ProjectStageAccordionProps) {
   const queryClient = useQueryClient()
   const { profile, isUserActive } = useAuth()
@@ -53,9 +59,65 @@ export function ProjectStageAccordion({
 
 
   const { mutate: updateStage, isPending } = useMutation({
-    mutationFn: ({ stageId, payload }: { stageId: string, payload: unknown, StageName: string }) =>
-      updateProjectStage(stageId, payload, profile.id),
-    onSuccess: () => {
+    mutationFn: ({
+      stageId,
+      payload,
+    }: {
+      stageId: string;
+      payload: Partial<ProjectStage>;
+      stageName: string;
+      previousStatus: StageStatusValue;
+      previousNotes: string;
+    }) => updateProjectStage(stageId, payload, profile.id),
+
+    onSuccess: async (_data, variables) => {
+      const { stageId, payload, stageName, previousStatus, previousNotes } =
+        variables;
+      if (userId) {
+        if (
+          payload.status !== undefined &&
+          payload.status !== previousStatus
+        ) {
+          if (payload.status === "completed") {
+            await addLog({
+              project_id: projectId,
+              stage_id: stageId,
+              user_id: userId,
+              action_type: "stage_completion",
+              old_value: previousStatus,
+              new_value: payload.status,
+              comment: `تم إكمال المرحلة "${stageName}"`,
+            });
+          } else {
+            const label =
+              Object.values(STAGE_STATUS).find((s) => s.value === payload.status)
+                ?.label || payload.status;
+            await addLog({
+              project_id: projectId,
+              stage_id: stageId,
+              user_id: userId,
+              action_type: "status_change",
+              old_value: previousStatus,
+              new_value: payload.status,
+              comment: `تم تغيير حالة المرحلة "${stageName}" إلى ${label}`,
+            });
+          }
+        }
+        if (
+          payload.notes !== undefined &&
+          payload.notes !== previousNotes
+        ) {
+          await addLog({
+            project_id: projectId,
+            stage_id: stageId,
+            user_id: userId,
+            action_type: "note_update",
+            old_value: previousNotes,
+            new_value: payload.notes,
+            comment: `تم تحديث ملاحظات المرحلة "${stageName}"`,
+          });
+        }
+      }
       queryClient.invalidateQueries({ queryKey: [projectId] });
       toast.success(" تم تحديث المرحلة بنجاح ");
       setCurrentUpdatedId("")
@@ -68,8 +130,29 @@ export function ProjectStageAccordion({
   });
 
   const { mutate: updateProjectStatus, isPending: isUpdateingStatus } = useMutation({
-    mutationFn: (newVlaue: ProjectStatus) => updateProject(projectId, { status: newVlaue }),
-    onSuccess: () => {
+    mutationFn: ({
+      newStatus,
+    }: {
+      newStatus: ProjectStatus;
+      oldStatus: ProjectStatus;
+    }) => updateProject(projectId, { status: newStatus }),
+    onSuccess: async (_data, variables) => {
+      if (
+        userId &&
+        variables.newStatus !== variables.oldStatus
+      ) {
+        await addLog({
+          project_id: projectId,
+          user_id: userId,
+          action_type: "status_change",
+          old_value: variables.oldStatus,
+          new_value: variables.newStatus,
+          comment:
+            variables.newStatus === "completed"
+              ? "تم تسجيل اكتمال المشروع"
+              : `تم تحديث حالة المشروع إلى ${ProjectStatusEnum[variables.newStatus]}`,
+        });
+      }
       queryClient.invalidateQueries({ queryKey: [projectId] });
       toast.success(" تم تحديث حالة المشروع ");
       setCurrentUpdatedId("")
@@ -83,7 +166,13 @@ export function ProjectStageAccordion({
   });
   const activeStage = sortedStages.find((s) => s.status === "in_progress") || sortedStages.find((s) => s.status === "not_started") || sortedStages[0];
   const [expandedValue, setExpandedValue] = useState<string | undefined>(activeStage?.id);
-  const handleStatusChange = (stageId: string, newStatus: StageStatusValue, StageName: string) => {
+  const handleStatusChange = (
+    stageId: string,
+    newStatus: StageStatusValue,
+    stageName: string,
+    previousStatus: StageStatusValue,
+    previousNotes: string,
+  ) => {
     if (!isUserActive) {
       toast.error("حسابك غير نشط ،يرجي التواصل مع المدير.")
       return
@@ -93,19 +182,30 @@ export function ProjectStageAccordion({
     updateStage({
       stageId,
       payload: { status: newStatus },
-      StageName
+      stageName,
+      previousStatus,
+      previousNotes,
     })
-    const isLastStage = StageName === "التقديم في بلدي";
+    const isLastStage = stageName === "التقديم في بلدي";
 
     if (!isLastStage) return;
 
-    const projectStatus = newStatus === "completed" ? "completed" : "active";
-    updateProjectStatus(projectStatus);
+    const nextProjectStatus = newStatus === "completed" ? "completed" : "active";
+    updateProjectStatus({
+      newStatus: nextProjectStatus,
+      oldStatus: projectStatus,
+    });
   }
 
 
 
-  const handleSaveNotes = async (stageId: string, notes: string, StageName: string) => {
+  const handleSaveNotes = async (
+    stageId: string,
+    notes: string,
+    stageName: string,
+    previousStatus: StageStatusValue,
+    previousNotes: string,
+  ) => {
     if (!isUserActive) {
       toast.error("حسابك للقراءة فقط، لا يمكنك التعديل.")
       return
@@ -113,8 +213,10 @@ export function ProjectStageAccordion({
     setCurrentUpdatedId(stageId)
     updateStage({
       stageId,
-      payload: { notes: notes },
-      StageName
+      payload: { notes },
+      stageName,
+      previousStatus,
+      previousNotes,
     })
   };
 
@@ -190,7 +292,13 @@ export function ProjectStageAccordion({
                         <Select
                           value={stage.status}
                           onValueChange={(value: StageStatusValue) =>
-                            handleStatusChange(stage.id, value, stage.name)
+                            handleStatusChange(
+                              stage.id,
+                              value,
+                              stage.name,
+                              stage.status,
+                              stage.notes,
+                            )
                           }
                         >
                           <SelectTrigger className="w-full bg-background">
@@ -232,7 +340,15 @@ export function ProjectStageAccordion({
                       <Label className="text-sm font-semibold">ملاحظات المرحلة</Label>
                       <StageNotesField
                         initialNotes={stage.notes}
-                        onSave={(notes) => handleSaveNotes(stage.id, notes, stage.name)}
+                        onSave={(notes) =>
+                          handleSaveNotes(
+                            stage.id,
+                            notes,
+                            stage.name,
+                            stage.status,
+                            stage.notes,
+                          )
+                        }
                       />
                     </div>
                   </div>

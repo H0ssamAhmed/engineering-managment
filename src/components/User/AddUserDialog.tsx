@@ -28,7 +28,7 @@ interface AddUserDialogProps {
   onSuccess: () => void;
 }
 
-export default function AddUserDialog({ open, onOpenChange, onSuccess }: AddUserDialogProps) {
+export default function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
   const [saving, setSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(true);
 
@@ -54,7 +54,6 @@ export default function AddUserDialog({ open, onOpenChange, onSuccess }: AddUser
     const newUser = await createUser({ email, password, name, role });
 
     if (newUser) {
-      await onSuccess();
       toast.success("تم إضافة الموظف الجديد إلى الفريق.")
 
       onOpenChange(false);

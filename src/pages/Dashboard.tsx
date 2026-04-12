@@ -35,9 +35,9 @@ const STAGE_COLORS = {
 };
 
 const STAGE_LABELS: Record<string, string> = {
+  waiting: "بانتظار الإجراء",
   not_started: "لم يبدأ",
   in_progress: "قيد التنفيذ",
-  waiting: "بانتظار الإجراء",
   completed: "مكتمل",
 };
 

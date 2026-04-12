@@ -41,16 +41,15 @@ import { Link } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
-const CURRENT_USER_ID = "u_1"; // Mocking logged in user
 
 export default function Projects() {
   document.title = "مكتب انس حلواني | المشاريع "
-  const { projects, stages, clients, updateStage, createProject, addClient, loading } = useProjects();
+  const { projects, clients, createProject, addClient, loading } = useProjects();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
-  const { isUserActive } = useAuth()
+  const { isUserActive, profile } = useAuth()
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
@@ -68,17 +67,6 @@ export default function Projects() {
     return clients.find((c) => c.id === clientId)?.name || "عميل غير معروف";
   };
 
-  const getProjectProgress = (projectId: string) => {
-    const projectStages = stages.filter((s) => s.project_id === projectId);
-    console.log(projectStages);
-
-
-    if (projectStages.length === 0) return 0;
-    const completed = projectStages.filter((s) => s.status === "completed").length;
-    return Math.round((completed / projectStages.length) * 100);
-  };
-
-  // console.log(getProjectProgress());
 
   const handleOpenDialog = () => {
     if (!isUserActive) {
@@ -202,25 +190,31 @@ export default function Projects() {
                       <CardHeader className="pb-3 border-b border-border/50 bg-muted/30">
                         <div className="flex justify-between items-start">
                           <div className="space-y-1">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-4">
                               <CardTitle className="text-lg group-hover:text-primary transition-colors">
                                 {project.name}
                               </CardTitle>
                               <Badge variant={project.status === 'active' ? 'outline' : 'secondary'} className="text-xs">
                                 {ProjectStatusEnum[project.status]}
                               </Badge>
+
                             </div>
                             <CardDescription className="flex items-center gap-2 text-sm">
                               <User className="w-3.5 h-3.5" />
                               {getClientName(project.client_id)}
                             </CardDescription>
                           </div>
-                          <Badge className="bg-primary/10 text-primary border-none">
-                            {getProjectTypeLabel(project.type)}
-                          </Badge>
-                        </div>
-                      </CardHeader>
+                          <div className=" flex flex-col justify-end items-end gap-2">
 
+                            <Badge className="bg-primary/10 text-primary border-none px-4 py-2 text-center">
+                              {getProjectTypeLabel(project.type)}
+                            </Badge>
+                            <Precentage projectId={project.id} />
+
+                          </div>
+                        </div>
+
+                      </CardHeader>
                       <CardContent className="pt-5">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                           <div className="space-y-2">
@@ -298,10 +292,30 @@ export default function Projects() {
             server_path: data.server_path,
             current_stage_id: "",
             client_id: data.client_id,
-          }, CURRENT_USER_ID);
+          }, profile?.id ?? "");
           // setIsDialogOpen(false);
         }}
       />
     </div>
   );
+}
+
+const Precentage = ({ projectId }: { projectId: string }) => {
+  const { stages } = useProjects();
+  const projectStages = stages.filter((s) => s.project_id == projectId)
+
+  if (projectStages.length === 0) return 0;
+
+
+  const completedStages = projectStages.filter(
+    (stage) => stage.status === "completed"
+  ).length;
+
+  const precentage = Math.round((completedStages / projectStages.length) * 100);
+  return <div className="flex items-center justify-center gap-2">
+    <p>نسبة الانجاز</p>
+    <Badge variant="secondary" className="px-4" >{precentage}%</Badge>
+
+  </div>
+
 }

@@ -4,6 +4,7 @@ import type {
   ProjectStage,
   ProjectLog,
   ProjectWithStages,
+  AddProjectLogInput,
 } from "@/lib/index";
 
 export async function fetchProjects(): Promise<Project[]> {
@@ -56,27 +57,28 @@ export async function fetchProjectById(
     stages: projectStages.sort((a, b) => a.stage_order - b.stage_order),
   } as ProjectWithStages;
 }
+// never used
 
-export async function fetchProjectStages(
-  projectId?: string,
-): Promise<ProjectStage[]> {
-  let query = supabase
-    .from("project_stages")
-    .select("*")
-    .order("stage_order", { ascending: true });
+// export async function fetchProjectStages(
+//   projectId?: string,
+// ): Promise<ProjectStage[]> {
+//   let query = supabase
+//     .from("project_stages")
+//     .select("*")
+//     .order("stage_order", { ascending: true });
 
-  if (projectId) {
-    query = query.eq("project_id", projectId);
-  }
+//   if (projectId) {
+//     query = query.eq("project_id", projectId);
+//   }
 
-  const { data, error } = await query;
+//   const { data, error } = await query;
 
-  if (error) {
-    console.error("Error fetching project stages:", error);
-    return [];
-  }
-  return (data || []) as ProjectStage[];
-}
+//   if (error) {
+//     console.error("Error fetching project stages:", error);
+//     return [];
+//   }
+//   return (data || []) as ProjectStage[];
+// }
 export async function fetchProjectsStagesStatus(): Promise<ProjectStage[]> {
   const query = supabase
     .from("project_stages")
@@ -181,20 +183,6 @@ export async function createProject(
       .update({ current_stage_id: firstStageId, updated_at: now })
       .eq("id", project.id);
   }
-  const logPayload = {
-    project_id: project.id,
-    user_id: userId,
-    action_type: "creation",
-    comment: "تم إنشاء المشروع الجديد بنجاح",
-  };
-  console.log(logPayload);
-
-  await addProjectLog({
-    project_id: project.id,
-    user_id: userId,
-    action_type: "creation",
-    comment: "تم إنشاء المشروع الجديد بنجاح",
-  });
 
   return { ...project, current_stage_id: firstStageId || "" } as Project;
 }
@@ -236,18 +224,9 @@ export async function updateProjectStage(
     console.error("Error updating project stage:", error);
     return false;
   }
+
   return true;
 }
-
-export type AddProjectLogInput = {
-  project_id: string;
-  stage_id?: string;
-  user_id: string;
-  action_type: ProjectLog["action_type"];
-  old_value?: string;
-  new_value?: string;
-  comment: string;
-};
 
 export async function addProjectLog(log: AddProjectLogInput): Promise<boolean> {
   const { error } = await supabase.from("project_logs").insert({
