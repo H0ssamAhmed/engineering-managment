@@ -15,7 +15,6 @@ import ProjectsDetails from "./pages/ProjectsDetails";
 import NotFound from "./pages/not-found/NotFound";
 import { Toaster } from "react-hot-toast";
 import MyInfo from "./components/MyInfo";
-import DisplayInactiveNotfication from "./components/InactiveNotfication";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,6 +72,9 @@ const App = () => {
               duration: 5000,
               removeDelay: 1000,
               success: { duration: 3000 },
+              style: {
+                direction: "rtl"
+              }
             }}
           />
 

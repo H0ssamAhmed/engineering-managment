@@ -20,12 +20,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAuth } from "@/contexts/AuthContext";
-import { fetchUsers } from "@/api/users";
+
 import { USER_ROLES } from "@/lib/index";
 import UserRow from "@/components/User/UserRow";
-import AddUserDialog from "@/components/User/AddUserDialog";
 import EditUserDialog from "@/components/User/EditUserDialog";
-import { useQuery } from "@tanstack/react-query";
 import LoadingPage from "@/components/LoadingPage";
 import { useUsers } from "@/hooks/useUsers";
 
@@ -35,11 +33,9 @@ export default function Users() {
   // const [users, setUsers] = useState<User[]>([]);
   // const { data: users, error, isLoading } = useQuery({ queryKey: ["users"], queryFn: fetchUsers })
   const [searchQuery, setSearchQuery] = useState("");
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const { users, error, isLoading } = useUsers()
+  const { users, isLoading } = useUsers()
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const { isManager } = useAuth();
 
 
 

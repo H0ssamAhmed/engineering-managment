@@ -201,3 +201,35 @@ export const navigation = [
     icon: Users,
   },
 ];
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type:
+    | "stage_assignment"
+    | "status_change"
+    | "comment_added"
+    | "project_completed";
+  title: string;
+  message?: string;
+
+  // Related entities
+  project_id?: string;
+  stage_id?: string;
+  assigned_by_user_id?: string;
+  assigned_by_user?: { name: string; id: string };
+
+  // UI state
+  is_read: boolean;
+  action_url?: string;
+
+  // Timestamps
+  created_at: string;
+  updated_at: string;
+}
+
+export type NotificationType =
+  | "stage_assignment"
+  | "status_change"
+  | "comment_added"
+  | "project_completed";

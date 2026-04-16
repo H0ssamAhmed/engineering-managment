@@ -24,6 +24,7 @@ import {
   STAGE_STATUS,
   StageStatusValue,
   formatDateTime,
+  User,
 } from "@/lib/index";
 import {
   Save,
@@ -36,6 +37,8 @@ import { updateProject, updateProjectStage } from "@/api/projects";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import UpdateStageSkeleton from "./UpdateStageSkeleton";
+import { useUsers } from "@/hooks/useUsers";
+import { Link } from "react-router-dom";
 
 interface ProjectStageAccordionProps {
   projectId: string;
@@ -56,6 +59,7 @@ export function ProjectStageAccordion({
   const { profile, isUserActive } = useAuth()
   const [currentUpdatedId, setCurrentUpdatedId] = useState<string>("")
   const sortedStages = [...stages]//.sort((a, b) => a.stage_order - b.stage_order);
+  const { users, isLoading } = useUsers()
 
 
   const { mutate: updateStage, isPending } = useMutation({
@@ -197,8 +201,6 @@ export function ProjectStageAccordion({
     });
   }
 
-
-
   const handleSaveNotes = async (
     stageId: string,
     notes: string,
@@ -221,7 +223,29 @@ export function ProjectStageAccordion({
   };
 
 
+  const assignToEng = ({ value, stage }: { value: string, stage: ProjectStage }) => {
+    console.log(value);
+    const targetUser = users.find(user => user.id == value)
+    if (profile.role != "MANAGER") {
+      toast.error(`غير مصرح لك بهذا لاجراء`)
+      return
+    }
 
+    if (!targetUser.is_active) {
+      // toast.error(`حساب ${targetUser.name} غير نشط، يجب تنشيط الحساب اولاً`)
+      toast.custom(<div>حساب {targetUser.name} غير نشط، يجب تنشيط الحساب اولاً <Link to="/users">من هنا</Link></div>)
+
+      return
+    }
+    setCurrentUpdatedId(stage.id)
+    updateStage({
+      stageId: stage.id,
+      payload: { responsible_user_id: value },
+      stageName: stage.name,
+      previousStatus: stage.status,
+      previousNotes: stage.notes || "",
+    })
+  }
   return (
     <div className="w-full space-y-4" dir="rtl" data-project-id={projectId}>
       <Accordion
@@ -235,7 +259,6 @@ export function ProjectStageAccordion({
           const statusConfig = Object.values(STAGE_STATUS).find(
             (s) => s.value === stage.status
           );
-
           return (
             <AccordionItem
               key={stage.id}
@@ -322,7 +345,7 @@ export function ProjectStageAccordion({
                           <Info className="w-4 h-4" />
                           معلومات التحديث الأخير
                         </div>
-                        <div className="grid grid-cols-2 gap-4 text-xs">
+                        <div className="grid grid-cols-4 gap-4 text-xs">
                           <div className="space-y-1">
                             <span className="text-muted-foreground block">بواسطة:</span>
                             <span className="font-medium">{stage.last_updated_by_user?.name || "النظام"}</span>
@@ -330,6 +353,31 @@ export function ProjectStageAccordion({
                           <div className="space-y-1">
                             <span className="text-muted-foreground block">التاريخ والوقت:</span>
                             <span className="font-medium">{formatDateTime(stage.last_updated_at)}</span>
+                          </div>
+                          <div className="space-y-1 col-span-2">
+                            <Label className="text-muted-foreground block text-[12px]">مسند الي : </Label>
+                            <Select
+                              dir="rtl"
+                              value={stage.responsible_user_id || ""}
+                              onValueChange={(value) => assignToEng({ value, stage })}
+                            >
+                              <SelectTrigger className="w-full bg-background">
+                                <SelectValue placeholder="اختر المهندس" />
+                              </SelectTrigger>
+
+                              <SelectContent>
+                                {users
+                                  .filter(u => u.role !== "MANAGER")
+                                  .map((user: User) => (
+                                    <SelectItem key={user.id} value={user.id}>
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full" />
+                                        {user.name}
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
                       </div>
