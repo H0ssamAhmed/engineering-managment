@@ -38,7 +38,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import UpdateStageSkeleton from "./UpdateStageSkeleton";
 import { useUsers } from "@/hooks/useUsers";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface ProjectStageAccordionProps {
   projectId: string;
@@ -60,7 +60,7 @@ export function ProjectStageAccordion({
   const [currentUpdatedId, setCurrentUpdatedId] = useState<string>("")
   const sortedStages = [...stages]//.sort((a, b) => a.stage_order - b.stage_order);
   const { users, isLoading } = useUsers()
-
+  const navigate = useNavigate();
 
   const { mutate: updateStage, isPending } = useMutation({
     mutationFn: ({
@@ -232,9 +232,17 @@ export function ProjectStageAccordion({
     }
 
     if (!targetUser.is_active) {
-      // toast.error(`حساب ${targetUser.name} غير نشط، يجب تنشيط الحساب اولاً`)
-      toast.custom(<div>حساب {targetUser.name} غير نشط، يجب تنشيط الحساب اولاً <Link to="/users">من هنا</Link></div>)
-
+      toast((t) => (
+        <div onClick={() => {
+          navigate(`/users`);
+          toast.dismiss(t.id);
+        }}
+          className="cursor-pointer"
+        >
+          حساب <strong>{targetUser.name}</strong>  غير نشط, <Button size="sm" variant="outline">اضغط لتنشيطه</Button>        </div>
+      ), {
+        icon: "⚠️",
+      });
       return
     }
     setCurrentUpdatedId(stage.id)

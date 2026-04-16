@@ -1,5 +1,6 @@
 import { ROUTE_PATHS } from '@/lib'
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 const NotFound = () => {
     return (
@@ -13,12 +14,12 @@ const NotFound = () => {
             <p className="text-muted-foreground max-w-md px-4">
                 عذراً، الرابط الذي تحاول الوصول إليه غير موجود أو تم نقله لمكان آخر.
             </p>
-            <a
-                href={ROUTE_PATHS.DASHBOARD}
+            <Link
+                to={ROUTE_PATHS.DASHBOARD}
                 className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
                 العودة للرئيسية
-            </a>
+            </Link>
         </div>
     )
 }
