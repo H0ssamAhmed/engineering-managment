@@ -353,7 +353,7 @@ export function ProjectStageAccordion({
                           <Info className="w-4 h-4" />
                           معلومات التحديث الأخير
                         </div>
-                        <div className={cn("grid gap-4 text-xs", profile.role == "MANAGER" ? "grid-cols-4" : "grid-cols-2")}>
+                        <div className={cn("grid gap-4 text-xs", profile.role == "MANAGER" ? "grid-cols-4" : "grid-cols-3")}>
                           <div className="space-y-1">
                             <span className="text-muted-foreground block">بواسطة:</span>
                             <span className="font-medium">{stage.last_updated_by_user?.name || "النظام"}</span>
@@ -362,7 +362,11 @@ export function ProjectStageAccordion({
                             <span className="text-muted-foreground block">التاريخ والوقت:</span>
                             <span className="font-medium">{formatDateTime(stage.last_updated_at)}</span>
                           </div>
-                          <div className={cn("space-y-1 col-span-2", profile.role != "MANAGER" && 'hidden')}>
+                          {profile.role != "MANAGER" && <div className="space-y-1">
+                            <span className="text-muted-foreground block">مسند الي :</span>
+                            <span className="font-medium">{users.find(user => user.id == stage.responsible_user_id)?.name}</span>
+                          </div>}
+                          {profile.role == "MANAGER" && <div className={cn("space-y-1 col-span-2")}>
                             <Label className="text-muted-foreground block text-[12px]">مسند الي : </Label>
                             <Select
                               dir="rtl"
@@ -386,7 +390,7 @@ export function ProjectStageAccordion({
                                   ))}
                               </SelectContent>
                             </Select>
-                          </div>
+                          </div>}
                         </div>
                       </div>
                     </div>
