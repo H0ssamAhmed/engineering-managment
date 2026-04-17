@@ -98,7 +98,7 @@ export function ProjectStageCard({ row }: ProjectStageCardProps) {
                   <Hash className="w-4 h-4 text-muted-foreground shrink-0" />
                   <span>رقم القطعة: {project.land_plot_number}</span>
                 </li>
-                <li className="flex items-start bg-teal-600 gap-2 min-w-0 text-end col-span-2">
+                <li className="flex items-start  gap-2 min-w-0 text-end col-span-2">
                   <FolderOpen className="w-4 h-4 text-muted-foreground shrink-0" />
                   <span className="font-mono text-xs break-all" dir="ltr">
                     {project.server_path}
