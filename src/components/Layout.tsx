@@ -20,6 +20,7 @@ import { ar } from 'date-fns/locale';
 import LoggedInUser from "./LoggedInUser";
 import DisplayInactiveNotfication from "./InactiveNotfication";
 import { useAuth } from "@/contexts/AuthContext";
+import UserNotificatio from "./UserNotificatio";
 interface LayoutProps {
   children?: React.ReactNode;
 }
@@ -116,10 +117,8 @@ export function Layout({ children }: LayoutProps) {
             </div>
 
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell size={20} />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full border-2 border-background"></span>
-              </Button>
+              <UserNotificatio />
+
               <div className="h-8 w-px bg-border mx-2"></div>
               <div className="hidden sm:flex flex-col items-start">
                 <span className="text-xs text-muted-foreground">اليوم هو</span>

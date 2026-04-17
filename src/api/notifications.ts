@@ -25,7 +25,7 @@ export async function fetchUnreadNotifications(
     .select(
       `
       *,
-      assigned_by_user:users!assigned_by_user_id (name, id)
+        assigned_by:users!triggered_by (id, name)
     `,
     )
     .eq("user_id", userId)
@@ -50,7 +50,7 @@ export async function fetchNotifications(
     .select(
       `
       *,
-      assigned_by_user:users!assigned_by_user_id (name, id)
+        assigned_by:users!triggered_by (id, name)
     `,
     )
     .eq("user_id", userId)
@@ -96,12 +96,13 @@ export async function createNotification(
 }
 
 // Mark notification as read
-export async function markNotificationAsRead(
+export async function ChangeNotificationReading(
   notificationId: string,
+  is_read: boolean,
 ): Promise<boolean> {
   const { error } = await supabase
     .from("notifications")
-    .update({ is_read: true, updated_at: new Date().toISOString() })
+    .update({ is_read: is_read, read_at: new Date().toISOString() })
     .eq("id", notificationId);
 
   if (error) {
