@@ -10,9 +10,10 @@ import { cn } from '@/lib/utils'
 
 const UserNotificatio = () => {
   const { currentUserNotifaction } = useUsers()
-  const [isOpen, setIsOpen] = useState<boolean>(true)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
   const read = currentUserNotifaction.filter((notifi) => (notifi.is_read))
   const unread = currentUserNotifaction.filter((notifi) => (!notifi.is_read))
+
 
   return (
     <DropdownMenu dir='rtl' open={isOpen} onOpenChange={setIsOpen} >
@@ -23,19 +24,14 @@ const UserNotificatio = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80 p-4 max-h-80 overflow-auto  " align="center" >
-
+        {!currentUserNotifaction.length && <p className='text-center' > لا يوجد اشعارات <Bell className='inline-block' size={20} /></p>}
         <DropdownMenuGroup>
           <DropdownMenuLabel className={cn(unread.length == 0 && "hidden")}>غير مقروء</DropdownMenuLabel>
-          {unread.map((notification) => {
-            return <NotificationRow notification={notification} setIsOpen={setIsOpen} />
-          })}
-
+          {unread.map((notification) => <NotificationRow notification={notification} setIsOpen={setIsOpen} />)}
         </DropdownMenuGroup>
         <DropdownMenuGroup>
           <DropdownMenuLabel className={cn(read.length == 0 && "hidden")}> مقروء</DropdownMenuLabel>
-          {read.map((notification) => {
-            return <NotificationRow notification={notification} setIsOpen={setIsOpen} />
-          })}
+          {read.map((notification) => <NotificationRow notification={notification} setIsOpen={setIsOpen} />)}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu >

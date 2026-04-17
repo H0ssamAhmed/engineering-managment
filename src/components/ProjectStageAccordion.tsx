@@ -38,7 +38,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import UpdateStageSkeleton from "./UpdateStageSkeleton";
 import { useUsers } from "@/hooks/useUsers";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface ProjectStageAccordionProps {
   projectId: string;
@@ -59,7 +59,7 @@ export function ProjectStageAccordion({
   const { profile, isUserActive } = useAuth()
   const [currentUpdatedId, setCurrentUpdatedId] = useState<string>("")
   const sortedStages = [...stages]//.sort((a, b) => a.stage_order - b.stage_order);
-  const { users, isLoading } = useUsers()
+  const { users } = useUsers()
   const navigate = useNavigate();
 
   const { mutate: updateStage, isPending } = useMutation({
@@ -133,7 +133,7 @@ export function ProjectStageAccordion({
     }
   });
 
-  const { mutate: updateProjectStatus, isPending: isUpdateingStatus } = useMutation({
+  const { mutate: updateProjectStatus } = useMutation({
     mutationFn: ({
       newStatus,
     }: {
@@ -224,7 +224,7 @@ export function ProjectStageAccordion({
 
 
   const assignToEng = ({ value, stage }: { value: string, stage: ProjectStage }) => {
-    console.log(value);
+
     const targetUser = users.find(user => user.id == value)
     if (profile.role != "MANAGER") {
       toast.error(`غير مصرح لك بهذا لاجراء`)
@@ -353,7 +353,7 @@ export function ProjectStageAccordion({
                           <Info className="w-4 h-4" />
                           معلومات التحديث الأخير
                         </div>
-                        <div className="grid grid-cols-4 gap-4 text-xs">
+                        <div className={cn("grid gap-4 text-xs", profile.role == "MANAGER" ? "grid-cols-4" : "grid-cols-2")}>
                           <div className="space-y-1">
                             <span className="text-muted-foreground block">بواسطة:</span>
                             <span className="font-medium">{stage.last_updated_by_user?.name || "النظام"}</span>
@@ -362,7 +362,7 @@ export function ProjectStageAccordion({
                             <span className="text-muted-foreground block">التاريخ والوقت:</span>
                             <span className="font-medium">{formatDateTime(stage.last_updated_at)}</span>
                           </div>
-                          <div className="space-y-1 col-span-2">
+                          <div className={cn("space-y-1 col-span-2", profile.role != "MANAGER" && 'hidden')}>
                             <Label className="text-muted-foreground block text-[12px]">مسند الي : </Label>
                             <Select
                               dir="rtl"
@@ -443,7 +443,7 @@ function StageNotesField({
   return (
     <div className="space-y-2 flex-1 flex flex-col p-1">
       <Textarea
-        value={notes}
+        value={notes || ""}
         onChange={(e) => {
           setNotes(e.target.value);
           setIsDirty(true);
