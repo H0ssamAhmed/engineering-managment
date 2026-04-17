@@ -117,6 +117,20 @@ export type CreateProjectInput = {
   client_id: string;
 };
 
+/** Default workflow stage titles inserted for each new project — also used for list filters */
+export const WORKFLOW_STAGE_NAMES = [
+  "الرفع المساحي",
+  "تسجيل الصك",
+  "التصميم المعماري",
+  "التصميم الإنشائي",
+  "تصميم الواجهات",
+  "التصاميم الميكانيكية",
+  "تجهيز ملفات بلدي",
+  "التقديم في بلدي",
+] as const;
+
+export type WorkflowStageName = (typeof WORKFLOW_STAGE_NAMES)[number];
+
 export async function createProject(
   input: CreateProjectInput,
   userId: string,
@@ -142,19 +156,8 @@ export async function createProject(
     return null;
   }
 
-  const workflowNames = [
-    "الرفع المساحي",
-    "تسجيل الصك",
-    "التصميم المعماري",
-    "التصميم الإنشائي",
-    "تصميم الواجهات",
-    "التصاميم الميكانيكية",
-    "تجهيز ملفات بلدي",
-    "التقديم في بلدي",
-  ];
-
   const today = now.split("T")[0];
-  const stagesToInsert = workflowNames.map((name, index) => ({
+  const stagesToInsert = WORKFLOW_STAGE_NAMES.map((name, index) => ({
     project_id: project.id,
     name,
     stage_order: index + 1,

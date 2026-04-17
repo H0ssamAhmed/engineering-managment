@@ -1,4 +1,10 @@
-import { LayoutDashboard, Briefcase, Users, UserSquare } from "lucide-react";
+import {
+  LayoutDashboard,
+  Briefcase,
+  Users,
+  UserSquare,
+  ChartNoAxesColumnDecreasing,
+} from "lucide-react";
 
 export const ROUTE_PATHS = {
   DASHBOARD: "/",
@@ -7,6 +13,7 @@ export const ROUTE_PATHS = {
   CLIENTS: "/clients",
   USERS: "/users",
   USER_DATA: "/users-info",
+  PROJECTS_STATGES: "/projects-stages",
 } as const;
 
 export const USER_ROLES = {
@@ -184,6 +191,11 @@ export const navigation = [
     name: "المشاريع الهندسية",
     href: ROUTE_PATHS.PROJECTS,
     icon: Briefcase,
+  },
+  {
+    name: "مراحل المشاريع",
+    href: ROUTE_PATHS.PROJECTS_STATGES,
+    icon: ChartNoAxesColumnDecreasing,
   },
   {
     name: "قاعدة العملاء",

@@ -15,6 +15,7 @@ import ProjectsDetails from "./pages/ProjectsDetails";
 import NotFound from "./pages/not-found/NotFound";
 import { Toaster } from "react-hot-toast";
 import MyInfo from "./components/MyInfo";
+import ProjectsStages from "./pages/ProjectsStages";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,6 +50,7 @@ const App = () => {
                   <Route path={ROUTE_PATHS.PROJECTS + "/:id"} element={<ProjectsDetails />} />
                   <Route path={ROUTE_PATHS.CLIENTS} element={<Clients />} />
                   <Route path={ROUTE_PATHS.USER_DATA} element={<MyInfo />} />
+                  <Route path={ROUTE_PATHS.PROJECTS_STATGES} element={<ProjectsStages />} />
                   <Route
                     path={ROUTE_PATHS.USERS}
                     element={

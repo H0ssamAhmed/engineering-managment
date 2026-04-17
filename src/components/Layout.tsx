@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { NavLink, useLocation, Outlet } from "react-router-dom";
 import {
   Menu,
-  Bell,
-  Search,
   ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,7 +43,6 @@ export function Layout({ children }: LayoutProps) {
           <p className="text-xs text-muted-foreground mt-1"> إدارة المشاريع</p>
         </div>
       </div>
-
       <nav className="flex-1 px-4 py-4 space-y-1">
         {navigation.map((item) => {
           const isActive = location.pathname === item.href;
