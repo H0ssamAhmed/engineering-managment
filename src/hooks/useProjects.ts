@@ -307,10 +307,7 @@ export const useProjects = () => {
 
   return {
     projects,
-    // notStartedStages: stats.notStartedStages,
-    // waitingStages: stats.waitingStages,
-    // completedStages: stats.completedStages,
-    // inProgressStages: stats.inProgressStages,
+
     stages,
     clients,
     logs,

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,41 +20,36 @@ export default function Login() {
   const { session } = useAuth()
   const [testLogin, setTestLogin] = useState(false);
   document.title = "مكتب انس حلواني | تسجيل الدخول"
-
-  const checkSessionChnages = () => {
-    if (session)
-      navigate("/")
-  }
-
+  const [searchParams] = useSearchParams()
+  const redirectTo = useMemo(() => {
+    const redirect = searchParams.get("redirect");
+    // Only allow app-internal paths.
+    return redirect && redirect.startsWith("/") ? redirect : "/";
+  }, [searchParams]);
 
   useEffect(() => {
-    checkSessionChnages()
-  }, [session])
+    if (session) {
+      navigate(redirectTo);
+    }
+  }, [session, redirectTo, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     try {
       const res = await signIn(email, password);
+      if (res?.error) {
+        toast.error("البريد الإلكتروني أو كلمة المرور غير صحيحة.");
+        return;
+      }
+
+      toast.success("تم تسجيل الدخول بنجاح ✅");
+      navigate(redirectTo);
     } catch (error) {
       console.error(error);
-
+      toast.error("حدث خطأ أثناء تسجيل الدخول.");
+    } finally {
       setSubmitting(false);
-    }
-    finally {
-      setSubmitting(false);
-      checkSessionChnages()
-
-
-    }
-    const res = await signIn(email, password);
-
-    if (res?.error) {
-      toast.error("البريد الإلكتروني أو كلمة المرور غير صحيحة.");
-      setSubmitting(false);
-    } else {
-      toast.success("تم تسجيل الدخول بنجاح ✅");
-      navigate("/");
     }
   };
   const handleTestLogin = () => {
@@ -108,7 +103,8 @@ export default function Login() {
             >
               <Input type="checkbox"
                 className="w-4 h-4"
-                checked={showPassword}
+                defaultChecked={showPassword}
+
 
               />
               <Label>اظهار كلمة المرور</Label>

@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction, useState } from 'react'
-import { Button } from './ui/button'
+import { Button, buttonVariants } from './ui/button'
 import { Bell, BookOpenCheck, Loader } from 'lucide-react'
 import { useUsers } from '@/hooks/useUsers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from './ui/dropdown-menu'
@@ -15,23 +15,24 @@ const UserNotificatio = () => {
   const unread = currentUserNotifaction.filter((notifi) => (!notifi.is_read))
 
 
+
   return (
     <DropdownMenu dir='rtl' open={isOpen} onOpenChange={setIsOpen} >
       <DropdownMenuTrigger>
-        <Button variant="ghost" size="icon" className="relative">
+        <div className='relative w-10 h-10 flex items-center justify-center hover:bg-primary/10 rounded-md'>
           <Bell size={20} />
           <span className="absolute -top-2 -right-2 w-6 h-6  text-md text-primary bg-primary/10 rounded-full border-2 border-background ">{unread.length || 0}</span>
-        </Button>
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80 p-4 max-h-80 overflow-auto  " align="center" >
         {!currentUserNotifaction.length && <p className='text-center' > لا يوجد اشعارات <Bell className='inline-block' size={20} /></p>}
         <DropdownMenuGroup>
           <DropdownMenuLabel className={cn(unread.length == 0 && "hidden")}>غير مقروء</DropdownMenuLabel>
-          {unread.map((notification) => <NotificationRow notification={notification} setIsOpen={setIsOpen} />)}
+          {unread.map((notification) => <NotificationRow key={notification.id} notification={notification} setIsOpen={setIsOpen} />)}
         </DropdownMenuGroup>
         <DropdownMenuGroup>
           <DropdownMenuLabel className={cn(read.length == 0 && "hidden")}> مقروء</DropdownMenuLabel>
-          {read.map((notification) => <NotificationRow notification={notification} setIsOpen={setIsOpen} />)}
+          {read.map((notification) => <NotificationRow key={notification.id} notification={notification} setIsOpen={setIsOpen} />)}
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu >

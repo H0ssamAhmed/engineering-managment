@@ -91,13 +91,16 @@ const ProjectsStages = () => {
                             تصفية:
                         </div>
                         <Select
+                            dir="rtl"
                             value={stageStatus}
                             onValueChange={(v) => setStageStatus(v as StageStatusFilter)}
                         >
                             <SelectTrigger className="w-full sm:w-[200px] h-10">
                                 <SelectValue placeholder="حالة المرحلة" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent
+
+                            >
                                 <SelectItem value="all">كل حالات المراحل</SelectItem>
                                 {Object.values(STAGE_STATUS).map((s) => (
                                     <SelectItem key={s.value} value={s.value}>
@@ -108,6 +111,7 @@ const ProjectsStages = () => {
                         </Select>
 
                         <Select
+                            dir="rtl"
                             value={workflowName}
                             onValueChange={(v) => setWorkflowName(v as WorkflowNameFilter)}
                         >
@@ -125,6 +129,7 @@ const ProjectsStages = () => {
                         </Select>
 
                         <Select
+                            dir="rtl"
                             value={projectCompletion}
                             onValueChange={(v) =>
                                 setProjectCompletion(v as ProjectCompletionFilter)

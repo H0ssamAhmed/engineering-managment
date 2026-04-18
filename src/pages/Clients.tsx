@@ -26,7 +26,7 @@ import { Card } from "@/components/ui/card";
 
 export default function Clients() {
   document.title = "مكتب انس حلواني | معلوماتي "
-  const { clients, addClient, updateClient, removeClient, loading } = useProjects();
+  const { clients, addClient, updateClient, removeClient, isLoading } = useProjects();
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | undefined>(undefined);
@@ -100,7 +100,7 @@ export default function Clients() {
           />
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="py-8 text-center text-muted-foreground">جاري التحميل...</div>
         ) : (
           <div className="rounded-md border border-border overflow-hidden">

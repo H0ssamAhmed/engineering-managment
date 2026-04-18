@@ -5,7 +5,13 @@ import type { User } from "@/lib/index";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
-
+type AuthEvent =
+  | 'INITIAL_SESSION'
+  | 'SIGNED_IN'
+  | 'SIGNED_OUT'
+  | 'PASSWORD_RECOVERY'
+  | 'TOKEN_REFRESHED'
+  | 'USER_UPDATED';
 interface AuthContextType {
   session: Session | null;
   user: SupabaseUser | null;
@@ -52,6 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   const ReDirect = (path: string) => {
     const navigate = useNavigate()
+
     navigate("/" + path)
   }
 
@@ -60,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (!session) {
-          console.error("Session error:", error || "Ssession expired");
+          console.error("Session expired:", error || "Ssession expired");
           localStorage.clear();
           setLoading(false);
           return;
@@ -83,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initialize();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
+      async (event: AuthEvent, currentSession: Session) => {
 
       }
     );
@@ -171,7 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useAuth() {
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");

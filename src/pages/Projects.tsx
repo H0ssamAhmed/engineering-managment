@@ -9,13 +9,15 @@ import {
   LayoutGrid,
   List,
   Clock,
-  Clipboard
+  Clipboard,
+  ExternalLink
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
 
   getProjectTypeLabel,
-  ProjectStatusEnum
+  ProjectStatusEnum,
+  ROUTE_PATHS
 } from "@/lib/index";
 import { useProjects } from "@/hooks/useProjects";
 import { ProjectDialog } from "@/components/ProjectDialog";
@@ -44,7 +46,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function Projects() {
   document.title = "مكتب انس حلواني | المشاريع "
-  const { projects, clients, createProject, addClient, loading } = useProjects();
+  const { projects, clients, createProject, addClient, isLoading } = useProjects();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -155,7 +157,7 @@ export default function Projects() {
         </TabsList>
 
         <TabsContent value="all_projects" className="m-0">
-          {loading ? (
+          {isLoading ? (
             <Card className="border-dashed flex flex-col items-center justify-center p-12 text-center">
               <p className="text-muted-foreground">جاري التحميل...</p>
             </Card>
@@ -250,12 +252,13 @@ export default function Projects() {
                           </div>
                         </div>
 
-                        <div className="mt-4 space-y-4">
-                          <div className="flex items-center justify-end mb-2">
-                            <Link to={`${project.id}`} className="text-xs text-primary bg-secondary p-2 rounded-md">
-                              <h4 className="text-sm font-semibold">مراحل المشروع وسير العمل</h4>
+                        <div className="mt-4 flex">
+                          <Button variant="outline" size="sm" className="shrink-0  ms-auto gap-1.5" asChild>
+                            <Link to={`${ROUTE_PATHS.PROJECTS}/${project.id}`}>
+                              <span>تفاصيل المشروع</span>
+                              <ExternalLink className="w-3.5 h-3.5" />
                             </Link>
-                          </div>
+                          </Button>
                         </div>
 
                       </CardContent>
