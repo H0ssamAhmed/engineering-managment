@@ -6,6 +6,7 @@ import {
   Client,
   STAGE_STATUS,
   ProjectWithStages,
+  CreateProjectInput,
 } from "../lib/index";
 import {
   fetchProjects,
@@ -15,7 +16,6 @@ import {
   updateProject,
   updateProjectStage,
   addProjectLog,
-  type CreateProjectInput,
   fetchProjectsStagesStatus,
 } from "../api/projects";
 import {
@@ -25,7 +25,7 @@ import {
   deleteClient as deleteClientApi,
 } from "../api/clients";
 import { useAuth } from "@/contexts/AuthContext";
-import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 
 const CURRENT_USER_ID = "82a9eeb0-ddec-470d-ac1c-7e4bb6efa83f";
 

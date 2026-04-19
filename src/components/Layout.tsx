@@ -28,7 +28,7 @@ export function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const { profile } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+  const filteredNavigation = navigation.filter(item => item.isDisplayed(profile.role));
 
 
 
@@ -44,7 +44,7 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </div>
       <nav className="flex-1 px-4 py-4 space-y-1">
-        {navigation.map((item) => {
+        {filteredNavigation.map((item) => {
           const isActive = location.pathname === item.href;
           return (
             <NavLink
@@ -55,7 +55,6 @@ export function Layout({ children }: LayoutProps) {
                 isActive
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                profile?.role !== "MANAGER" && item.href == ROUTE_PATHS.USERS && "hidden",
               )}
             >
               <item.icon

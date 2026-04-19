@@ -13,30 +13,7 @@ export async function fetchClients(): Promise<Client[]> {
   }
   return (data || []) as Client[];
 }
-// never used
-export async function getProjectWithStages(projectId: string) {
-  // const { data, error } = await supabase
-  //   .from("projects")
-  //   .select(
-  //     `
-  //     *,
-  //     project_stages (
-  //       id,
-  //       name,
-  //       stage_order,
-  //       status,
-  //       responsible_user_id
-  //     )
-  //   `,
-  //   )
-  //   .eq("id", projectId)
-  //   .single();
-  // if (error) {
-  //   console.error("Error fetching project:", error.message);
-  //   return null;
-  // }
-  // return data;
-}
+
 export async function createClient(
   input: Omit<Client, "id">,
 ): Promise<Client | null> {
@@ -77,7 +54,6 @@ export async function updateClient(
 
 export async function deleteClient(id: string): Promise<boolean> {
   const { error } = await supabase.from("clients").delete().eq("id", id);
-
   if (error) {
     console.error("Error deleting client:", error);
     return false;

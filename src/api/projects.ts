@@ -1,10 +1,12 @@
 import { supabase } from "../../supabase/supabase";
-import type {
+import {
   Project,
   ProjectStage,
   ProjectLog,
   ProjectWithStages,
   AddProjectLogInput,
+  WORKFLOW_STAGE_NAMES,
+  CreateProjectInput,
 } from "@/lib/index";
 
 export async function fetchProjects(): Promise<Project[]> {
@@ -26,15 +28,7 @@ export async function fetchProjectById(
   const { data, error } = await supabase
     .from("projects")
     .select(
-      `
-      *,
-      project_stages (*,
-      last_updated_by_user:users!last_updated_by (
-        name,
-        id
-      )
-      )
-    `,
+      `*, project_stages (*, last_updated_by_user:users!last_updated_by (name, id) )`,
     )
     .eq("id", projectId)
     .order("stage_order", { foreignTable: "project_stages", ascending: true })
@@ -57,28 +51,6 @@ export async function fetchProjectById(
     stages: projectStages.sort((a, b) => a.stage_order - b.stage_order),
   } as ProjectWithStages;
 }
-// never used
-
-// export async function fetchProjectStages(
-//   projectId?: string,
-// ): Promise<ProjectStage[]> {
-//   let query = supabase
-//     .from("project_stages")
-//     .select("*")
-//     .order("stage_order", { ascending: true });
-
-//   if (projectId) {
-//     query = query.eq("project_id", projectId);
-//   }
-
-//   const { data, error } = await query;
-
-//   if (error) {
-//     console.error("Error fetching project stages:", error);
-//     return [];
-//   }
-//   return (data || []) as ProjectStage[];
-// }
 export async function fetchProjectsStagesStatus(): Promise<ProjectStage[]> {
   const query = supabase
     .from("project_stages")
@@ -107,29 +79,6 @@ export async function fetchProjectLogs(): Promise<ProjectLog[]> {
   }
   return (data || []) as ProjectLog[];
 }
-
-export type CreateProjectInput = {
-  name: string;
-  type: string;
-  land_plot_number: string;
-  land_location: string;
-  server_path: string;
-  client_id: string;
-};
-
-/** Default workflow stage titles inserted for each new project — also used for list filters */
-export const WORKFLOW_STAGE_NAMES = [
-  "الرفع المساحي",
-  "تسجيل الصك",
-  "التصميم المعماري",
-  "التصميم الإنشائي",
-  "تصميم الواجهات",
-  "التصاميم الميكانيكية",
-  "تجهيز ملفات بلدي",
-  "التقديم في بلدي",
-] as const;
-
-export type WorkflowStageName = (typeof WORKFLOW_STAGE_NAMES)[number];
 
 export async function createProject(
   input: CreateProjectInput,

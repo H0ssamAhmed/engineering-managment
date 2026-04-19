@@ -4,8 +4,12 @@ import {
   fetchProjectStagesWithProjects,
   type ProjectStageWithProject,
 } from "@/api/stages";
-import { WORKFLOW_STAGE_NAMES, type WorkflowStageName } from "@/api/projects";
-import type { StageStatusValue } from "@/lib/index";
+
+import {
+  WORKFLOW_STAGE_NAMES,
+  WorkflowStageName,
+  type StageStatusValue,
+} from "@/lib/index";
 
 export type ProjectCompletionFilter = "all" | "completed" | "incomplete";
 
@@ -20,7 +24,13 @@ export function useProjectStagesList() {
     useState<ProjectCompletionFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data = [], isLoading, isError, refetch, isFetching } = useQuery({
+  const {
+    data = [],
+    isLoading,
+    isError,
+    refetch,
+    isFetching,
+  } = useQuery({
     queryKey: ["projectStagesWithProjects"],
     queryFn: fetchProjectStagesWithProjects,
   });

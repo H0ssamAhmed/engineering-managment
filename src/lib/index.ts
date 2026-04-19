@@ -28,6 +28,7 @@ export const USER_ROLES = {
   MANAGER: "مدير المكتب",
 } as const;
 export type UserRole = keyof typeof USER_ROLES;
+export type WorkflowStageName = (typeof WORKFLOW_STAGE_NAMES)[number];
 
 export const STAGE_STATUS = {
   NOT_STARTED: {
@@ -51,6 +52,27 @@ export const STAGE_STATUS = {
     color: "text-green-600 bg-green-100",
   },
 } as const;
+
+export type CreateProjectInput = {
+  name: string;
+  type: string;
+  land_plot_number: string;
+  land_location: string;
+  server_path: string;
+  client_id: string;
+};
+
+/** Default workflow stage titles inserted for each new project — also used for list filters */
+export const WORKFLOW_STAGE_NAMES = [
+  "الرفع المساحي",
+  "تسجيل الصك",
+  "التصميم المعماري",
+  "التصميم الإنشائي",
+  "تصميم الواجهات",
+  "التصاميم الميكانيكية",
+  "تجهيز ملفات بلدي",
+  "التقديم في بلدي",
+] as const;
 
 export type StageStatusValue =
   (typeof STAGE_STATUS)[keyof typeof STAGE_STATUS]["value"];
@@ -186,31 +208,37 @@ export const navigation = [
     name: "لوحة التحكم",
     href: ROUTE_PATHS.DASHBOARD,
     icon: LayoutDashboard,
+    isDisplayed: (role: string) => role || true,
   },
   {
     name: "المشاريع الهندسية",
     href: ROUTE_PATHS.PROJECTS,
     icon: Briefcase,
+    isDisplayed: (role: string) => role || true,
   },
   {
     name: "مراحل المشاريع",
     href: ROUTE_PATHS.PROJECTS_STATGES,
     icon: ChartNoAxesColumnDecreasing,
+    isDisplayed: (role: string) => role || true,
   },
   {
     name: "قاعدة العملاء",
     href: ROUTE_PATHS.CLIENTS,
     icon: UserSquare,
+    isDisplayed: (role: string) => role || true,
   },
   {
     name: "إدارة الموظفين",
     href: ROUTE_PATHS.USERS,
     icon: Users,
+    isDisplayed: (role: string) => role == "MANAGER",
   },
   {
     name: "معلوماتي",
     href: ROUTE_PATHS.USER_DATA,
     icon: Users,
+    isDisplayed: (role: string) => role || true,
   },
 ];
 
