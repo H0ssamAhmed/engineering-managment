@@ -364,7 +364,7 @@ export function ProjectStageAccordion({
                           </div>
                           {profile.role != "MANAGER" && <div className="space-y-1">
                             <span className="text-muted-foreground block">مسند الي :</span>
-                            <span className="font-medium">{users.find(user => user.id == stage.responsible_user_id)?.name}</span>
+                            <span className="font-medium">{users.find(user => user.id == stage.responsible_user_id)?.name || "لم يُسند يعد"}</span>
                           </div>}
                           {profile.role == "MANAGER" && <div className={cn("space-y-1 col-span-2")}>
                             <Label className="text-muted-foreground block text-[12px]">مسند الي : </Label>

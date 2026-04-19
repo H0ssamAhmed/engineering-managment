@@ -8,7 +8,7 @@ import {
   Calendar,
   ExternalLink,
 } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ProjectStageWithProject } from "@/api/stages";
@@ -107,8 +107,7 @@ export function ProjectStageCard({ row }: ProjectStageCardProps) {
                 <li className="flex items-center gap-2 text-muted-foreground">
                   <Calendar className="w-4 h-4 shrink-0" />
                   <span>
-                    إنشاء المشروع: {formatDate(project.created_at)} — آخر تحديث:{" "}
-                    {formatDate(project.updated_at)}
+                    إنشاء المشروع: {formatDate(project.created_at)}
                   </span>
                 </li>
               </ul>

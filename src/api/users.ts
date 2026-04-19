@@ -14,7 +14,7 @@ export async function fetchUsers(): Promise<User[]> {
   return (data || []) as User[];
 }
 
-export type CreateUserInput = {
+type CreateUserInput = {
   email: string;
   password: string;
   name: string;

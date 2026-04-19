@@ -268,7 +268,7 @@ export interface Notification {
   updated_at: string;
 }
 
-export type NotificationType =
+type NotificationType =
   | "stage_assignment"
   | "status_change"
   | "comment_added"

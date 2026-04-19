@@ -1,7 +1,7 @@
 import { supabase } from "../../supabase/supabase";
 import type { Notification } from "@/lib/index";
 
-export type CreateNotificationInput = {
+type CreateNotificationInput = {
   user_id: string;
   type:
     | "stage_assignment"
