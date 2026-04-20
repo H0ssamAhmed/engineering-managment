@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+import { ar } from "date-fns/locale";
 import {
   LayoutDashboard,
   Briefcase,
@@ -166,6 +168,13 @@ export interface ProjectLog {
 /**
  * Utility functions for Engineering ERP
  */
+export const formateDateGetDay = (dateString: string) => {
+  return (
+    format(dateString, "EEEE", { locale: ar }) +
+    " - " +
+    format(dateString, "dd MMMM yyyy - h:mm a", { locale: ar })
+  );
+};
 
 export const formatDate = (dateString: string) => {
   return new Intl.DateTimeFormat("ar-SA", {

@@ -1,12 +1,12 @@
 import React, { Dispatch, SetStateAction, useState } from 'react'
-import { Button, buttonVariants } from './ui/button'
 import { Bell, BookOpenCheck, Loader } from 'lucide-react'
 import { useUsers } from '@/hooks/useUsers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
-import { Notification, ROUTE_PATHS } from '@/lib'
+import { formateDateGetDay, Notification, ROUTE_PATHS } from '@/lib'
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import { Badge } from './ui/badge'
 
 const UserNotificatio = () => {
   const { currentUserNotifaction } = useUsers()
@@ -24,7 +24,7 @@ const UserNotificatio = () => {
           <span className="absolute -top-2 -right-2 w-6 h-6  text-md text-primary bg-primary/10 rounded-full border-2 border-background ">{unread.length || 0}</span>
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80 p-4 max-h-80 overflow-auto  " align="center" >
+      <DropdownMenuContent className="w-fit p-4 max-h-96 overflow-auto  " align="center" >
         {!currentUserNotifaction.length && <p className='text-center' > لا يوجد اشعارات <Bell className='inline-block' size={20} /></p>}
         <DropdownMenuGroup>
           <DropdownMenuLabel className={cn(unread.length == 0 && "hidden")}>غير مقروء</DropdownMenuLabel>
@@ -54,15 +54,20 @@ const NotificationRow = (
     changeNotificationState({ id: notification.id, is_read: !notification.is_read });
   };
   return (
-    <DropdownMenuItem className='flex items-center justify-between'>
-      <Link to={`${ROUTE_PATHS.PROJECTS}/${notification.project_id}`}> {notification.message}</Link>
+    <DropdownMenuItem className='flex gap-4 my-4 p-2 items-start justify-between'>
+      <div className=' flex flex-col gap-4'>
+        <Link className='text-gray-800 font-semibold' to={`${ROUTE_PATHS.PROJECTS}/${notification.project_id}`}> {notification.message}</Link>
+        <Badge className='w-fit py-1 text-gray-500' variant="outline">
+          {formateDateGetDay(notification.created_at)}
+        </Badge>
+      </div>
       {isChangingNotifiState ?
         <Loader className='animate-spin' /> :
         <Tooltip delayDuration={0} >
           <TooltipTrigger>
             <BookOpenCheck
               onClick={handleMarkAsRead}
-              className='bg-primary/50 hover:bg-primary cursor-pointer p-0.5 w-6 h-6 rounded-sm' />
+              className='bg-primary/50 hover:bg-primary cursor-pointer p-0.5 w-7 h-7 rounded-sm' />
           </TooltipTrigger>
           <TooltipContent className="cursor-pointer" >
             <p >تميز كــ {notification.is_read ? "غير مقروء" : "مقروء"}</p>
