@@ -16,6 +16,7 @@ import NotFound from "./pages/not-found/NotFound";
 import { Toaster } from "react-hot-toast";
 import MyInfo from "./components/MyInfo";
 import ProjectsStages from "./pages/ProjectsStages";
+import { Analytics } from "@vercel/analytics/next"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,6 +33,7 @@ const App = () => {
       <AuthProvider>
         <TooltipProvider>
           <div dir="rtl" lang="ar" className="min-h-screen bg-background font-sans antialiased selection:bg-primary/20 selection:text-primary relative">
+            <Analytics />
 
             <BrowserRouter>
               <Routes>
