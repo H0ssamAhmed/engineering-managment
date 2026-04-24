@@ -18,11 +18,10 @@ interface Props {
 const ProjectsPagination = ({ goToPage, page, length }: Props) => {
 
     return (
-        <Pagination dir="ltr">
-            <PaginationContent className='ms-auto'>
+        <Pagination dir="rtl" className=''>
+            <PaginationContent className=''>
 
                 <PaginationItem>
-
                     <Button
                         className=' cursor-pointer px-6'
                         size='sm'
@@ -31,21 +30,8 @@ const ProjectsPagination = ({ goToPage, page, length }: Props) => {
                         onClick={() => goToPage(Math.max(page - 1, 1))}
                     >
                         السابق
-
                     </Button>
                 </PaginationItem>
-
-                {/* {Array.from({ length: totalPages }).map((_, i) => (
-                    <PaginationItem key={i}>
-                        <PaginationLink
-                            isActive={page === i + 1}
-                            onClick={() => goToPage(i + 1)}
-                        >
-                            {i + 1}
-                        </PaginationLink>
-                    </PaginationItem>
-                ))} */}
-
                 <PaginationItem>
                     <Button
                         className=' cursor-pointer px-6'

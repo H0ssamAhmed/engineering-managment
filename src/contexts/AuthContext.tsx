@@ -3,7 +3,6 @@ import { User as SupabaseUser, Session } from "@supabase/supabase-js";
 import { supabase } from "../../supabase/supabase";
 import type { User } from "@/lib/index";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 import { QueryClient } from "@tanstack/react-query";
 
 type AuthEvent =
@@ -58,11 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return null;
     }
   };
-  const ReDirect = (path: string) => {
-    const navigate = useNavigate()
-
-    navigate("/" + path)
-  }
 
   useEffect(() => {
     const initialize = async () => {

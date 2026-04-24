@@ -199,13 +199,30 @@ const ProjectsStages = () => {
                     </AnimatePresence>
                 </div>
             )}
-            <ProjectsPagination
-                goToPage={goToPage}
-                page={page}
-                limit={limit}
-                length={filteredRows.length}
 
-            />
+            <div className="flex items-cent justify-sta gap-3 p-2">
+                <ProjectsPagination
+                    goToPage={goToPage}
+                    page={page}
+                    limit={limit}
+                    length={filteredRows.length}
+                />
+                <Select
+                    value={String(limit)}
+                    onValueChange={(value) => changeLimit(Number(value))}
+                >
+                    <SelectTrigger className=" w-fit">
+                        <SelectValue placeholder="اختر العدد" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="20">20</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                </Select>
+
+            </div>
 
             <ProjectDialog
                 open={isDialogOpen}
