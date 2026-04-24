@@ -1,10 +1,10 @@
 import React from 'react'
-import { Avatar, AvatarImage } from './ui/avatar'
+import { Avatar, AvatarImage } from '../ui/avatar'
 import { AvatarFallback } from '@radix-ui/react-avatar'
 import { useAuth } from '@/contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { ROUTE_PATHS, getRoleLabel } from "@/lib/index";
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { LogOut } from 'lucide-react';
 
 const LoggedInUser = () => {

@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import {
   Search,
-  UserPlus,
   UserCheck,
   Shield,
   Briefcase,
   Loader2,
 } from "lucide-react";
 import { User } from "@/lib/index";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
@@ -19,8 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/contexts/AuthContext";
-
 import { USER_ROLES } from "@/lib/index";
 import UserRow from "@/components/User/UserRow";
 import EditUserDialog from "@/components/User/EditUserDialog";

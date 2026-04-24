@@ -1,12 +1,12 @@
 import React, { Dispatch, SetStateAction, useState } from 'react'
 import { Bell, BookOpenCheck, Loader } from 'lucide-react'
 import { useUsers } from '@/hooks/useUsers'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from './ui/dropdown-menu'
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '../ui/dropdown-menu'
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { formateDateGetDay, Notification, ROUTE_PATHS } from '@/lib'
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
-import { Badge } from './ui/badge'
+import { Badge } from '../ui/badge'
 
 const UserNotificatio = () => {
   const { currentUserNotifaction } = useUsers()

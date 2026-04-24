@@ -4,6 +4,7 @@ import { supabase } from "../../supabase/supabase";
 import type { User } from "@/lib/index";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { QueryClient } from "@tanstack/react-query";
 
 type AuthEvent =
   | 'INITIAL_SESSION'
@@ -29,6 +30,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = new QueryClient()
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<User | null>(null);
@@ -139,12 +141,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       await supabase.auth.signOut();
       toast.success("تم تسجيل الخروج بنجاح، سنفتقدك كثيرا ✅");
-
-
       setProfile(null);
       setSession(null);
       setUser(null);
       setIsSignedIn(false)
+      queryClient.invalidateQueries({ queryKey: ["notifications"] })
 
     } catch (err) {
       console.error("Error signing out:", err);

@@ -10,8 +10,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Card, CardTitle } from "@/components/ui/card";
-import { ProjectDialog } from "@/components/ProjectDialog";
-import { ProjectStageCard } from "@/components/ProjectStageCard";
+import { ProjectDialog } from "@/components/projects/ProjectDialog";
+import { ProjectStageCard } from "@/components/projects/ProjectStageCard";
 import { useProjects } from "@/hooks/useProjects";
 import {
     useProjectStagesList,

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Plus, FolderOpen, Calendar as CalendarIcon, MapPin, Hash, User } from "lucide-react";
+import { Plus, FolderOpen, MapPin, Hash } from "lucide-react";
 import {
   Dialog,
   DialogContent,

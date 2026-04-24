@@ -20,7 +20,7 @@ import {
   ROUTE_PATHS
 } from "@/lib/index";
 import { useProjects } from "@/hooks/useProjects";
-import { ProjectDialog } from "@/components/ProjectDialog";
+import { ProjectDialog } from "@/components/projects/ProjectDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

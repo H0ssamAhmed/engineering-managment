@@ -15,10 +15,10 @@ import { cn } from "@/lib/utils";
 import { navigation, ROUTE_PATHS } from "@/lib/index";
 import { format } from "date-fns";
 import { ar } from 'date-fns/locale';
-import LoggedInUser from "./LoggedInUser";
+import LoggedInUser from "./User/LoggedInUser";
 import DisplayInactiveNotfication from "./InactiveNotfication";
 import { useAuth } from "@/contexts/AuthContext";
-import UserNotificatio from "./UserNotificatio";
+import UserNotificatio from "./User/UserNotificatio";
 interface LayoutProps {
   children?: React.ReactNode;
 }

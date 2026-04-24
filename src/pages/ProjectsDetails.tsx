@@ -1,4 +1,4 @@
-import { ProjectStageAccordion } from "@/components/ProjectStageAccordion";
+import { ProjectStageAccordion } from "@/components/projects/ProjectStageAccordion";
 import { useProjects } from "@/hooks/useProjects";
 import { useAuth } from "@/contexts/AuthContext";
 import { useParams, Link } from "react-router-dom";
@@ -6,7 +6,7 @@ import { ChevronRight, FileText, Hash, MapPin, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { fetchProjectById } from "@/api/projects";
 import { useQuery } from "@tanstack/react-query";
-import { ProjectStatus, ProjectStatusEnum, ROUTE_PATHS, STAGE_STATUS } from "@/lib";
+import { ProjectStatusEnum, ROUTE_PATHS } from "@/lib";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@radix-ui/react-select";
 import { Badge } from "@/components/ui/badge";
