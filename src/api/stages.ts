@@ -9,9 +9,16 @@ export type ProjectStageWithProject = ProjectStage & {
 /**
  * Loads all stages from `project_stages` with full project and client rows.
  */
-export async function fetchProjectStagesWithProjects(): Promise<
-  ProjectStageWithProject[]
-> {
+export async function fetchProjectStagesWithProjects({
+  page,
+  limit,
+}: {
+  page: number;
+  limit: number;
+}): Promise<ProjectStageWithProject[]> {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
   const { data, error } = await supabase
     .from("project_stages")
     .select(
@@ -22,7 +29,9 @@ export async function fetchProjectStagesWithProjects(): Promise<
         client:clients (*)
       )
     `,
+      { count: "exact" },
     )
+    .range(from, to)
     .order("stage_order", { ascending: true });
 
   if (error) {

@@ -10,6 +10,7 @@ import {
   WorkflowStageName,
   type StageStatusValue,
 } from "@/lib/index";
+import { useSearchParams } from "react-router-dom";
 
 export type ProjectCompletionFilter = "all" | "completed" | "incomplete";
 
@@ -18,6 +19,9 @@ export type StageStatusFilter = "all" | StageStatusValue;
 export type WorkflowNameFilter = "all" | WorkflowStageName;
 
 export function useProjectStagesList() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 10;
   const [stageStatus, setStageStatus] = useState<StageStatusFilter>("all");
   const [workflowName, setWorkflowName] = useState<WorkflowNameFilter>("all");
   const [projectCompletion, setProjectCompletion] =
@@ -31,8 +35,8 @@ export function useProjectStagesList() {
     refetch,
     isFetching,
   } = useQuery({
-    queryKey: ["projectStagesWithProjects"],
-    queryFn: fetchProjectStagesWithProjects,
+    queryKey: ["projectStagesWithProjects", page, limit],
+    queryFn: () => fetchProjectStagesWithProjects({ page, limit }),
   });
 
   const filteredRows = useMemo(() => {
@@ -92,5 +96,8 @@ export function useProjectStagesList() {
     searchQuery,
     setSearchQuery,
     resetFilters,
+    setSearchParams,
+    page,
+    limit,
   };
 }

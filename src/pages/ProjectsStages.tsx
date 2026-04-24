@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Filter, Plus, Search, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ import { STAGE_STATUS } from "@/lib/index";
 import { useAuth } from "@/contexts/AuthContext";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import ProjectsPagination from "@/components/projects/ProjectsPagination";
 
 const ProjectsStages = () => {
     document.title = "مكتب انس حلواني | مراحل المشاريع";
@@ -40,6 +41,9 @@ const ProjectsStages = () => {
         searchQuery,
         setSearchQuery,
         resetFilters,
+        setSearchParams,
+        page,
+        limit,
     } = useProjectStagesList();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { isUserActive, profile } = useAuth();
@@ -52,6 +56,20 @@ const ProjectsStages = () => {
         setIsDialogOpen(true);
     };
 
+    const changeLimit = (newLimit: number) => {
+        setSearchParams({
+            page: "1", // reset page (important)
+            limit: String(newLimit),
+        });
+    }
+
+
+    const goToPage = (newPage: number) => {
+        setSearchParams({
+            page: String(newPage),
+            limit: String(limit),
+        });
+    };
     return (
         <div className="space-y-6 pb-12" dir="rtl">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -69,9 +87,10 @@ const ProjectsStages = () => {
                     className="bg-primary hover:bg-primary/90 text-white gap-2 h-11 px-6"
                 >
                     <Plus className="w-5 h-5" />
-                    إنشاء مشروع جديد
+                    إنشاء مشروع جديدt
                 </Button>
             </div>
+
 
             <div className="flex flex-col gap-4 bg-card p-4 rounded-xl border border-border shadow-sm">
                 <div className="flex flex-col xl:flex-row gap-4 xl:items-center xl:justify-between">
@@ -180,6 +199,13 @@ const ProjectsStages = () => {
                     </AnimatePresence>
                 </div>
             )}
+            <ProjectsPagination
+                goToPage={goToPage}
+                page={page}
+                limit={limit}
+                length={filteredRows.length}
+
+            />
 
             <ProjectDialog
                 open={isDialogOpen}
