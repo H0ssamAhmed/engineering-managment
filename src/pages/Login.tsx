@@ -30,8 +30,6 @@ export default function Login() {
 
   useEffect(() => {
     if (session) {
-      console.log(redirectTo);
-
       navigate(redirectTo);
     }
   }, [session, redirectTo, navigate])
