@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Search,
   UserCheck,
@@ -35,6 +35,7 @@ export default function Users() {
 
 
 
+
   const handleOpenEdit = (user: User) => {
     setEditingUser(user);
     setIsEditDialogOpen(true);
@@ -44,10 +45,15 @@ export default function Users() {
     setIsEditDialogOpen(false);
     setEditingUser(null);
   };
+  const filteredUsers = useMemo(() => {
+    return users.filter(
+      (user) =>
+        user.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [users, searchQuery]);
   if (isLoading) {
     return <LoadingPage />
   }
-
   return (
     <div className="space-y-6" dir="rtl">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -150,8 +156,8 @@ export default function Users() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.length > 0 ? (
-                    users.map((user) => (
+                  {filteredUsers.length > 0 ? (
+                    filteredUsers.map((user) => (
                       <UserRow
                         key={user.id}
                         user={user}

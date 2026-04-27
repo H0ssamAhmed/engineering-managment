@@ -11,8 +11,7 @@ import {
   SheetTrigger
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-
-import { navigation, ROUTE_PATHS } from "@/lib/index";
+import { navigation } from "@/lib/index";
 import { format } from "date-fns";
 import { ar } from 'date-fns/locale';
 import LoggedInUser from "./User/LoggedInUser";
@@ -43,7 +42,7 @@ export function Layout({ children }: LayoutProps) {
           <p className="text-xs text-muted-foreground mt-1"> إدارة المشاريع</p>
         </div>
       </div>
-      <nav className="flex-1 px-4 py-4 space-y-1">
+      <nav className="flex-1 px-4 py-4 space-y-1 text-start">
         {filteredNavigation.map((item) => {
           const isActive = location.pathname === item.href;
           return (
@@ -101,15 +100,6 @@ export function Layout({ children }: LayoutProps) {
                   <SidebarContent />
                 </SheetContent>
               </Sheet>
-
-              {/* <div className="hidden md:flex items-center bg-muted rounded-full px-4 py-1.5 gap-2 w-64 lg:w-96">
-                <Search size={18} className="text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="البحث عن مشروع، عميل..."
-                  className="bg-transparent border-none outline-none text-sm w-full"
-                />
-              </div> */}
             </div>
 
             <div className="flex items-center gap-2">
