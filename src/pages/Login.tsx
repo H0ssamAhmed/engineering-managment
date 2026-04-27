@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,12 +20,12 @@ export default function Login() {
   const { session } = useAuth()
   const [testLogin, setTestLogin] = useState(false);
   document.title = "مكتب انس حلواني | تسجيل الدخول"
-  const { state: { from: location } } = useLocation();
+  const location = useLocation();
 
 
   const redirectTo = useMemo(() => {
-    const redirect = `${location.pathname}${location.search}`;
-    return redirect ? redirect : "/"
+    const redirect = location.state ? location.state.from.pathname + location.state.from.search : "/";
+    return redirect
   }, [location]);
 
   useEffect(() => {
