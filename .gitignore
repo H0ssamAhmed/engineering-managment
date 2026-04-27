@@ -25,6 +25,7 @@ logs/
 report.[0-9]*.json
 user.md
 future-features.md
+settings.local.json
 
 # --- Runtime data / pids ---
 pids/
@@ -101,3 +102,10 @@ Thumbs.db
 # --- Uploaded Files ---
 uploaded_files/
 
+# folder to test some code,feature without merge it with the project
+src/test
+vitest.config.js
+
+
+# pacjages will remove again
+# vitest @testing-library/react @testing-library/user-event @testing-library/jest-dom jsdom
