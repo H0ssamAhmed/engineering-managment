@@ -24,7 +24,7 @@ const UserNotificatio = () => {
           <span className="absolute -top-2 -right-2 w-6 h-6  text-md text-primary bg-primary/10 rounded-full border-2 border-background ">{unread.length || 0}</span>
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-fit p-4 max-h-96 overflow-auto  " align="center" >
+      <DropdownMenuContent className="w-fit p-0 max-h-96 overflow-auto  " align="center" >
         {!currentUserNotifaction.length && <p className='text-center' > لا يوجد اشعارات <Bell className='inline-block' size={20} /></p>}
         <DropdownMenuGroup>
           <DropdownMenuLabel className={cn(unread.length == 0 && "hidden")}>غير مقروء</DropdownMenuLabel>
@@ -54,7 +54,7 @@ const NotificationRow = (
     changeNotificationState({ id: notification.id, is_read: !notification.is_read });
   };
   return (
-    <DropdownMenuItem className='flex gap-4 my-4 p-2 items-start justify-between'>
+    <DropdownMenuItem className={cn('flex gap-4 my-4 p-4 rounded-none w-full items-start justify-between', notification.is_read && "opacity-50")}>
       <div className=' flex flex-col gap-4'>
         <Link className='text-gray-800 font-semibold' to={`${ROUTE_PATHS.PROJECTS}/${notification.project_id}`}> {notification.message}</Link>
         <Badge className='w-fit py-1 text-gray-500' variant="outline">
