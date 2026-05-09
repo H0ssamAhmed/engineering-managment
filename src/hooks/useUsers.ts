@@ -1,5 +1,6 @@
 import {
   ChangeNotificationReading,
+  deleteNotification,
   fetchNotifications,
 } from "@/api/notifications";
 import { fetchUsers, updateUser } from "@/api/users";
@@ -14,7 +15,7 @@ interface UpdatesProps {
 }
 type ChangeNotificationPayload = {
   id: string;
-  is_read: boolean;
+  is_read?: boolean;
 };
 export const useUsers = () => {
   const queryClient = useQueryClient();
@@ -73,27 +74,37 @@ export const useUsers = () => {
     useMutation({
       mutationFn: ({ id, is_read }: ChangeNotificationPayload) =>
         ChangeNotificationReading(id, is_read),
-
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["notifications"] });
       },
 
       onError: (error) => {
         console.error("Failed to update notification:", error);
-        // optional: toast
+        toast.error("فشل تحديث حالة الإشعار");
+      },
+    });
+  const { mutate: deleteTheNotification, isPending: isDeletingNotifiState } =
+    useMutation({
+      mutationFn: (id: string) => deleteNotification(id),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      },
+
+      onError: (error) => {
+        console.error("Failed to update notification:", error);
         toast.error("فشل تحديث حالة الإشعار");
       },
     });
   return {
     users,
     currentUserNotifaction: userNotifactions,
-    // notifactionError,
-    // notifactionLoading,
     changeNotificationState,
     isChangingNotifiState,
     isLoading: data.isLoading,
     isPending,
     error: data.isError,
     updateUserInfo,
+    deleteTheNotification,
+    isDeletingNotifiState,
   };
 };

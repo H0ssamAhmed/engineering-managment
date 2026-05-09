@@ -1,79 +1,105 @@
-import React, { Dispatch, SetStateAction, useState } from 'react'
-import { Bell, BookOpenCheck, Loader } from 'lucide-react'
+import { Bell } from 'lucide-react'
 import { useUsers } from '@/hooks/useUsers'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import { formateDateGetDay, Notification, ROUTE_PATHS } from '@/lib'
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
-import { Badge } from '../ui/badge'
-
+import { Button } from '../ui/button'
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "../ui/empty"
 const UserNotificatio = () => {
   const { currentUserNotifaction } = useUsers()
-  const [isOpen, setIsOpen] = useState<boolean>(false)
   const read = currentUserNotifaction.filter((notifi) => (notifi.is_read))
   const unread = currentUserNotifaction.filter((notifi) => (!notifi.is_read))
 
 
-
   return (
-    <DropdownMenu dir='rtl' open={isOpen} onOpenChange={setIsOpen} >
+    <DropdownMenu dir='rtl'>
       <DropdownMenuTrigger>
         <div className='relative w-10 h-10 flex items-center justify-center hover:bg-primary/10 rounded-md'>
           <Bell size={20} />
-          <span className="absolute -top-2 -right-2 w-6 h-6  text-md text-primary bg-primary/10 rounded-full border-2 border-background ">{unread.length || 0}</span>
+          <span className={cn("absolute -top-3 -right-3 w-8 h-8 flex items-center justify-center text-md text-primary bg-primary/10 rounded-full border-2 border-background",
+            unread.length > 0 && "animate-pulse bg-red-500 text-white font-bold")}>{unread.length || 0}</span>
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-fit p-0 max-h-96 overflow-auto  " align="center" >
-        {!currentUserNotifaction.length && <p className='text-center' > لا يوجد اشعارات <Bell className='inline-block' size={20} /></p>}
+      <DropdownMenuContent className="w-md lg:w-160  max-h-96 overflow-auto">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className={cn(unread.length == 0 && "hidden")}>غير مقروء</DropdownMenuLabel>
-          {unread.map((notification) => <NotificationRow key={notification.id} notification={notification} setIsOpen={setIsOpen} />)}
+          <DropdownMenuLabel>الاشعارات الغير مقروءة</DropdownMenuLabel>
+          {
+            unread.length == 0
+              ? <EmptyNotification />
+              :
+              unread.map((notification) => <NotificationRow key={notification.id} notification={notification} />)}
         </DropdownMenuGroup>
-        <DropdownMenuGroup>
-          <DropdownMenuLabel className={cn(read.length == 0 && "hidden")}> مقروء</DropdownMenuLabel>
-          {read.map((notification) => <NotificationRow key={notification.id} notification={notification} setIsOpen={setIsOpen} />)}
-        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        {read.length > 0 && <DropdownMenuGroup>
+          <DropdownMenuLabel>الاشعارات المقروءة</DropdownMenuLabel>
+          {read.map((notification) => <NotificationRow key={notification.id} notification={notification} />)}
+        </DropdownMenuGroup>}
+
       </DropdownMenuContent>
-    </DropdownMenu >
+    </DropdownMenu>
   )
 }
 
 export default UserNotificatio
 
 
-const NotificationRow = (
-  { notification, setIsOpen }: {
-    notification: Notification, setIsOpen: Dispatch<SetStateAction<boolean>>
-
-  }) => {
-  const { changeNotificationState, isChangingNotifiState } = useUsers()
+const NotificationRow = ({ notification }: { notification: Notification }) => {
+  const { changeNotificationState, deleteTheNotification } = useUsers()
   const handleMarkAsRead = () => {
-    setIsOpen(true)
-    setIsOpen(true)
-    changeNotificationState({ id: notification.id, is_read: !notification.is_read });
+    changeNotificationState({ id: notification.id, is_read: !notification.is_read })
   };
+
   return (
-    <DropdownMenuItem className={cn('flex gap-4 my-4 p-4 rounded-none w-full items-start justify-between', notification.is_read && "opacity-50")}>
-      <div className=' flex flex-col gap-4'>
-        <Link className='text-gray-800 font-semibold' to={`${ROUTE_PATHS.PROJECTS}/${notification.project_id}`}> {notification.message}</Link>
-        <Badge className='w-fit py-1 text-gray-500' variant="outline">
-          {formateDateGetDay(notification.created_at)}
-        </Badge>
+    <DropdownMenuCheckboxItem
+      checked={notification.is_read}
+      onCheckedChange={handleMarkAsRead}
+      className={cn('flex items-center gap-4 py-8 border-b border-gray-200 last:border-b-0  ', notification.is_read && "opacity-50")}
+    >
+      <div className='flex items-center'>
+        <Bell size={30} className={cn(!notification.is_read && "text-red-500 font-bold animate-bounce")} />
       </div>
-      {isChangingNotifiState ?
-        <Loader className='animate-spin' /> :
-        <Tooltip delayDuration={0} >
-          <TooltipTrigger>
-            <BookOpenCheck
-              onClick={handleMarkAsRead}
-              className='bg-primary/50 hover:bg-primary cursor-pointer p-0.5 w-7 h-7 rounded-sm' />
-          </TooltipTrigger>
-          <TooltipContent className="cursor-pointer" >
-            <p >تميز كــ {notification.is_read ? "غير مقروء" : "مقروء"}</p>
-          </TooltipContent>
-        </Tooltip>
-      }
-    </DropdownMenuItem>
+      <div className='flex flex-col items-center gap-4 w-full'>
+        <div className='flex items-center gap-4 justify-between'>
+          <p>{notification.message}</p>
+          <p className='text-gray-500 py-2 text-sm col-span-3'>{formateDateGetDay(notification.created_at)}</p>
+        </div>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-4 w-full items-center'>
+          <Link className='text-gray-800 text-sm p-0 text-center font-semibold' to={ROUTE_PATHS.PROJECTS + "/" + notification.project_id || ROUTE_PATHS.DASHBOARD}>
+            <Button variant="link" size='sm' className='p-0 text-sm underline  cursor-pointer'>
+              عرض المرحلة
+            </Button>
+          </Link>
+          <Button
+            onClick={handleMarkAsRead}
+            variant="secondary" size='sm' className='cursor-pointer'>
+            <span>تميز كــ {notification.is_read ? "غير مقروء" : "مقروء"}</span>
+          </Button>
+
+          <Button
+            onClick={() => deleteTheNotification(notification.id)}
+            variant="destructive" size='sm' className='cursor-pointer'>
+            <span>حذف الاشعار</span>
+          </Button>
+        </div>
+      </div>
+    </DropdownMenuCheckboxItem>)
+
+}
+function EmptyNotification() {
+  return (
+    <Empty className='h-4'>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <Bell />
+        </EmptyMedia>
+        <EmptyTitle> لا يوجد اشعارات جديدة </EmptyTitle>
+      </EmptyHeader>
+    </Empty>
   )
 }
