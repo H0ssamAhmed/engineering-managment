@@ -26,7 +26,7 @@ const UserNotificatio = () => {
             unread.length > 0 && "animate-pulse bg-red-500 text-white font-bold")}>{unread.length || 0}</span>
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-md lg:w-160  max-h-96 overflow-auto">
+      <DropdownMenuContent className="w-screen md:w-160  max-h-96 overflow-auto">
         <DropdownMenuGroup>
           <DropdownMenuLabel>الاشعارات الغير مقروءة</DropdownMenuLabel>
           {
@@ -65,11 +65,11 @@ const NotificationRow = ({ notification }: { notification: Notification }) => {
         <Bell size={30} className={cn(!notification.is_read && "text-red-500 font-bold animate-bounce")} />
       </div>
       <div className='flex flex-col items-center gap-4 w-full'>
-        <div className='flex items-center gap-4 justify-between'>
+        <div className='flex items-start flex-col gap-4 w-full justify-between'>
           <p>{notification.message}</p>
           <p className='text-gray-500 py-2 text-sm col-span-3'>{formateDateGetDay(notification.created_at)}</p>
         </div>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4 w-full items-center'>
+        <div className='grid grid-cols-1   md:grid-cols-3 gap-4 w-full items-center'>
           <Link className='text-gray-800 text-sm p-0 text-center font-semibold' to={ROUTE_PATHS.PROJECTS + "/" + notification.project_id || ROUTE_PATHS.DASHBOARD}>
             <Button variant="link" size='sm' className='p-0 text-sm underline  cursor-pointer'>
               عرض المرحلة
