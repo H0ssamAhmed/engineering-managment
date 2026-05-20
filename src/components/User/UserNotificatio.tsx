@@ -1,4 +1,4 @@
-import { Bell } from 'lucide-react'
+import { Archive, ArchiveRestore, Bell, Trash2 } from 'lucide-react'
 import { useUsers } from '@/hooks/useUsers'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import { formateDateGetDay, Notification, ROUTE_PATHS } from '@/lib'
@@ -11,7 +11,8 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "../ui/empty"
-const UserNotificatio = () => {
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
+const UserNotification = () => {
   const { currentUserNotifaction } = useUsers()
   const read = currentUserNotifaction.filter((notifi) => (notifi.is_read))
   const unread = currentUserNotifaction.filter((notifi) => (!notifi.is_read))
@@ -26,7 +27,7 @@ const UserNotificatio = () => {
             unread.length > 0 && "animate-pulse bg-red-500 text-white font-bold")}>{unread.length || 0}</span>
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-screen md:w-160  max-h-96 overflow-auto">
+      <DropdownMenuContent className="w-screen md:w-96  max-h-96 overflow-auto">
         <DropdownMenuGroup>
           <DropdownMenuLabel>الاشعارات الغير مقروءة</DropdownMenuLabel>
           {
@@ -46,7 +47,7 @@ const UserNotificatio = () => {
   )
 }
 
-export default UserNotificatio
+export default UserNotification
 
 
 const NotificationRow = ({ notification }: { notification: Notification }) => {
@@ -59,7 +60,7 @@ const NotificationRow = ({ notification }: { notification: Notification }) => {
     <DropdownMenuCheckboxItem
       checked={notification.is_read}
       onCheckedChange={handleMarkAsRead}
-      className={cn('flex items-center gap-4 py-8 border-b border-gray-200 last:border-b-0  ', notification.is_read && "opacity-50")}
+      className={cn('flex items-center gap-4 py-4 my-2 border-b bg-gray-50 last:border-b-0  ', notification.is_read && "opacity-50")}
     >
       <div className='flex items-center'>
         <Bell size={30} className={cn(!notification.is_read && "text-red-500 font-bold animate-bounce")} />
@@ -69,7 +70,7 @@ const NotificationRow = ({ notification }: { notification: Notification }) => {
           <p>{notification.message}</p>
           <p className='text-gray-500 py-2 text-sm col-span-3'>{formateDateGetDay(notification.created_at)}</p>
         </div>
-        <div className='grid grid-cols-1   md:grid-cols-3 gap-4 w-full items-center'>
+        <div className='flex items-center justify-center md:justify-end gap-4 w-full'>
           <Link className='text-gray-800 text-sm p-0 text-center font-semibold' to={ROUTE_PATHS.PROJECTS + "/" + notification.project_id || ROUTE_PATHS.DASHBOARD}>
             <Button variant="link" size='sm' className='p-0 text-sm underline  cursor-pointer'>
               عرض المرحلة
@@ -77,14 +78,14 @@ const NotificationRow = ({ notification }: { notification: Notification }) => {
           </Link>
           <Button
             onClick={handleMarkAsRead}
-            variant="secondary" size='sm' className='cursor-pointer'>
-            <span>تميز كــ {notification.is_read ? "غير مقروء" : "مقروء"}</span>
+            variant="secondary" size='sm' className='cursor-pointer w-fit'>
+            <HintTooltip id={notification.id} value={notification.is_read} />
           </Button>
 
           <Button
             onClick={() => deleteTheNotification(notification.id)}
-            variant="destructive" size='sm' className='cursor-pointer'>
-            <span>حذف الاشعار</span>
+            variant="destructive" size='sm' className='cursor-pointer  w-fit'>
+            <Trash2 />
           </Button>
         </div>
       </div>
@@ -101,5 +102,28 @@ function EmptyNotification() {
         <EmptyTitle> لا يوجد اشعارات جديدة </EmptyTitle>
       </EmptyHeader>
     </Empty>
+  )
+}
+
+
+const HintTooltip = ({ value, id }: { value: boolean, id: string }) => {
+  const { changeNotificationState } = useUsers()
+  const handleMarkAsRead = () => {
+    changeNotificationState({ id: id, is_read: !value })
+  };
+  return (
+    <Tooltip delayDuration={0}>
+      <TooltipTrigger>
+        <Button
+          onClick={handleMarkAsRead}
+          variant="secondary" size='sm' className='cursor-pointer w-fit p-0'>
+          {value ? <Archive /> : <ArchiveRestore />}
+        </Button>
+
+      </TooltipTrigger>
+      <TooltipContent>
+        <span>تميز كــ {value ? "غير مقروء" : "مقروء"}</span>
+      </TooltipContent>
+    </Tooltip>
   )
 }
